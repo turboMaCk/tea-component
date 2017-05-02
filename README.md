@@ -86,13 +86,13 @@ import SubModule
 
 type alias Model =
     { ...
-    , subModule: : SubModule.Model
+    , subModule: SubModule.Model
     , ...
     }
 
 type Msg
     = ...
-    | SubModule: SubModule.Msg
+    | SubModule SubModule.Msg
     | ...
 ```
 
