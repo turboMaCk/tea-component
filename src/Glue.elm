@@ -7,6 +7,7 @@ module Glue
         , init
         , update
         , view
+        , withView
         , subscriptions
         , subscriptionsWhen
         , map
@@ -29,7 +30,7 @@ and [`Html.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#m
 
 # Basics
 
-@docs init, update, view, subscriptions, subscriptionsWhen
+@docs init, update, view, withView, subscriptions, subscriptionsWhen
 
 # Helpers
 
@@ -37,7 +38,7 @@ and [`Html.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#m
 
 -}
 
-import Html exposing (Html)
+import Html exposing (Html, text)
 
 
 {-| `Glue` defines interface mapings between parent and child module.
@@ -119,7 +120,6 @@ poly :
     , set : subModel -> model -> model
     , init : ( subModel, Cmd msg )
     , update : subMsg -> subModel -> ( subModel, Cmd msg )
-    , view : subModel -> Html msg
     , subscriptions : subModel -> Sub msg
     }
     -> Glue model subModel msg subMsg
@@ -130,11 +130,10 @@ poly :
     , set : subModel -> model -> model
     , init : ( subModel, Cmd msg )
     , update : subMsg -> subModel -> ( subModel, Cmd msg )
-    , view : subModel -> Html msg
     , subscriptions : subModel -> Sub msg
     }
     -> Glue model subModel msg subMsg
-poly { get, set, init, update, view, subscriptions } =
+poly { get, set, init, update, subscriptions } =
     Glue
         { model = set
         , init = init
@@ -142,15 +141,30 @@ poly { get, set, init, update, view, subscriptions } =
             \subMsg model ->
                 get model
                     |> update subMsg
-        , view =
-            \model ->
-                get model
-                    |> view
+        , view = \model -> text ""
         , subscriptions =
             \model ->
                 get model
                     |> subscriptions
         }
+
+
+{-| Helper for add custom view when using [`poly`](#poly) or [`simple`](#simple) constructor.
+
+
+
+**Interface:**
+
+```
+withView :
+    (model -> Html msg)
+    -> Glue model subModel msg subMsg
+    -> Glue model subModel msg subMsg
+```
+-}
+withView : (model -> Html msg) -> Glue model subModel msg subMsg -> Glue model subModel msg subMsg
+withView view (Glue data) =
+    Glue { data | view = view }
 
 
 {-| Low level [Glue](#Glue) constructor.
