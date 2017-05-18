@@ -246,32 +246,32 @@ view (Glue { get }) view =
 
 ```
 subscriptions : Model -> Sub Msg
-subscriptions =
-    (\model -> Mouse.clicks Clicked)
-        |> Glue.subscriptions subModule
-        |> Glue.subscriptions anotherNestedModule
+subscriptions model =
+    Mouse.clicks Clicked
+        |> Glue.subscriptions subModule model
+        |> Glue.subscriptions anotherNestedModule model
 ```
 -}
-subscriptions : Glue model subModel msg subMsg -> (model -> Sub msg) -> (model -> Sub msg)
-subscriptions (Glue { subscriptions }) mainSubscriptions =
-    \model -> Sub.batch [ mainSubscriptions model, subscriptions model ]
+subscriptions : Glue model subModel msg subMsg -> model -> Sub msg -> Sub msg
+subscriptions (Glue { subscriptions }) model mainSubscriptions =
+    Sub.batch [ mainSubscriptions, subscriptions model ]
 
 
 {-| Subscribe to subscriptions when model is in some state.
 
 ```
 subscriptions : Model -> Sub Msg
-subscriptions =
-    (\_ -> Mouse.clicks Clicked)
-        |> Glue.subscriptionsWhen .subModuleSubOn subModule
+subscriptions model =
+    Mouse.clicks Clicked
+        |> Glue.subscriptionsWhen .subModuleSubOn subModule model
 ```
 -}
-subscriptionsWhen : (model -> Bool) -> Glue model subModel msg subMsg -> (model -> Sub msg) -> (model -> Sub msg)
-subscriptionsWhen cond glue sub model =
+subscriptionsWhen : (model -> Bool) -> Glue model subModel msg subMsg -> model -> Sub msg -> Sub msg
+subscriptionsWhen cond glue model sub =
     if cond model then
-        subscriptions glue sub model
+        subscriptions glue model sub
     else
-        sub model
+        Sub.none
 
 
 
