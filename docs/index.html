@@ -9229,8 +9229,7 @@ var _user$project$Glue$poly = function (_p21) {
 						_p23(model));
 				}),
 			view: function (model) {
-				return _p22.view(
-					_p23(model));
+				return _elm_lang$html$Html$text('');
 			},
 			subscriptions: function (model) {
 				return _p22.subscriptions(
@@ -9238,6 +9237,14 @@ var _user$project$Glue$poly = function (_p21) {
 			}
 		});
 };
+var _user$project$Glue$withView = F2(
+	function (view, _p24) {
+		var _p25 = _p24;
+		return _user$project$Glue$Glue(
+			_elm_lang$core$Native_Utils.update(
+				_p25._0,
+				{view: view}));
+	});
 var _user$project$Glue$glue = _user$project$Glue$Glue;
 var _user$project$Bubbling_Main$Model = F2(
 	function (a, b) {
@@ -9247,24 +9254,28 @@ var _user$project$Bubbling_Main$Even = {ctor: 'Even'};
 var _user$project$Bubbling_Main$CounterMsg = function (a) {
 	return {ctor: 'CounterMsg', _0: a};
 };
-var _user$project$Bubbling_Main$counter = _user$project$Glue$poly(
-	{
-		get: function (_) {
-			return _.counter;
-		},
-		set: F2(
-			function (subModel, model) {
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{counter: subModel});
-			}),
-		init: _user$project$Bubbling_Counter$init(_user$project$Bubbling_Main$Even),
-		update: _user$project$Bubbling_Counter$update(_user$project$Bubbling_Main$Even),
-		view: _user$project$Bubbling_Counter$view(_user$project$Bubbling_Main$CounterMsg),
-		subscriptions: function (_p0) {
-			return _elm_lang$core$Platform_Sub$none;
-		}
-	});
+var _user$project$Bubbling_Main$counter = A2(
+	_user$project$Glue$withView,
+	function (model) {
+		return A2(_user$project$Bubbling_Counter$view, _user$project$Bubbling_Main$CounterMsg, model.counter);
+	},
+	_user$project$Glue$poly(
+		{
+			get: function (_) {
+				return _.counter;
+			},
+			set: F2(
+				function (subModel, model) {
+					return _elm_lang$core$Native_Utils.update(
+						model,
+						{counter: subModel});
+				}),
+			init: _user$project$Bubbling_Counter$init(_user$project$Bubbling_Main$Even),
+			update: _user$project$Bubbling_Counter$update(_user$project$Bubbling_Main$Even),
+			subscriptions: function (_p0) {
+				return _elm_lang$core$Platform_Sub$none;
+			}
+		}));
 var _user$project$Bubbling_Main$subscriptions = A2(
 	_user$project$Glue$subscriptions,
 	_user$project$Bubbling_Main$counter,

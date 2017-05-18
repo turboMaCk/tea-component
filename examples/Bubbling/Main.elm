@@ -28,9 +28,9 @@ counter =
         , set = \subModel model -> { model | counter = subModel }
         , init = Counter.init Even
         , update = Counter.update Even
-        , view = Counter.view CounterMsg
         , subscriptions = \_ -> Sub.none
         }
+        |> Glue.withView (\model -> Counter.view CounterMsg model.counter)
 
 
 
