@@ -66,7 +66,7 @@ In particular, you can find:
 
 TEA is an awesome way to write Html-based apps in Elm. However, not every application can be defined just in terms of single `Model` and `Msg`.
 Basic separation of [`Html.program`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#program) is really nice
-but in some cases these functions and `Model` and `Msg` thend to grow pretty quickly in an unmanageable way so you need to start breaking things.
+but in some cases these functions and `Model` and `Msg` tend to grow pretty quickly in an unmanageable way so you need to start breaking things.
 
 There are [many ways](https://www.reddit.com/r/elm/comments/5jd2xn/how_to_structure_elm_with_multiple_models/dbkpgbd/)
 you can start. In particular rest of this document will focus just on [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns).
@@ -148,7 +148,7 @@ And this is as far as pure TEA goes. This may possibly be good fit for your need
 **The most important type that TEA is built around is `( Model, Cmd Msg )`. All we're missing is just a tiny abstraction that will
 make working with this pair easier. This is really the core idea of the whole `Glue` package.**
 
-To simplify glueing of things together, the `Gue` type is introduced by this package.
+To simplify glueing of things together, the `Glue` type is introduced by this package.
 This is simply just a name-space for pure functions that defines interface between modules to which you can then refer by single name.
 Other functions within the `Glue` package use the `Glue.Glue` type as proxy to access these functions.
 
@@ -168,7 +168,7 @@ counter =
         { msg = CounterMsg
         , get = .counterModel
         , set = \subModel model -> { model | counterModel = subModel }
-        , init = Counter.init
+        , init = \_ -> Counter.init
         , update = Counter.update
         , subscriptions = \_ -> Sub.none
         }
@@ -252,16 +252,16 @@ counter =
     Glue.poly
         { get = .counterModel
         , set = \subModel model -> { model | counterModel = subModel }
-        , init = Counter.init
+        , init = \_ -> Counter.init
         , update = Counter.update
         , subscriptions = \_ -> Sub.none
         }
 ```
 
 As you can see we've switch from `Glue.simple` constructor to `Glue.poly` one.
-Also type anotation of counter has changed. `a` is now `Msg` instead of `Counter.Msg`.
+Also type annotation of counter has changed. `a` is now `Msg` instead of `Counter.Msg`.
 This is because view now returns `Html Msg` rather then `Html Counter.Msg`.
-This also means we no longer need to supply `msg` since `Glue.poly` doesn't need it (we actully know this should be identity function).
+This also means we no longer need to supply `msg` since `Glue.poly` doesn't need it (we actually know this should be identity function).
 
 We also need to change parent's view since it's using `Counter.view` which is now changed:
 
@@ -409,7 +409,7 @@ counter =
     Glue.poly
         { get = .counter
         , set = \subModel model -> { model | counter = subModel }
-        , init = Counter.init CountChanged
+        , init = \_ -> Counter.init CountChanged
         , update = Counter.update CountChanged
         , subscriptions = \_ -> Sub.none
         }
