@@ -27,7 +27,7 @@ counter =
     Glue.poly
         { get = .counter
         , set = \subModel model -> { model | counter = subModel }
-        , init = Counter.init CountChanged
+        , init = \_ -> Counter.init CountChanged
         , update = Counter.update CountChanged
         , subscriptions = \_ -> Sub.none
         }

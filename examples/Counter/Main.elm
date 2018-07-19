@@ -26,7 +26,7 @@ counter =
         { msg = CounterMsg
         , get = .counter
         , set = \subModel model -> { model | counter = subModel }
-        , init = Counter.init
+        , init = \_ -> Counter.init
         , update = Counter.update
         , subscriptions = \_ -> Sub.none
         }

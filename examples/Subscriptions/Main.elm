@@ -26,7 +26,7 @@ moves =
         { msg = MovesMsg
         , get = .moves
         , set = \subModel model -> { model | moves = subModel }
-        , init = Moves.init
+        , init = \_ -> Moves.init
         , update = Moves.update
         , subscriptions = Moves.subscriptions
         }
@@ -42,6 +42,7 @@ subscriptions =
         |> Glue.subscriptionsWhen .movesOn moves
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init

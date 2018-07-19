@@ -29,7 +29,7 @@ counter =
         { msg = CounterMsg
         , get = .counterModel
         , set = \sm m -> { m | counterModel = sm }
-        , init = Counter.init
+        , init = \_ -> Counter.init
         , update = Counter.update
         , subscriptions = Counter.subscriptions
         }
@@ -41,7 +41,7 @@ bubbling =
         { msg = BubblingMsg
         , get = .bubblingModel
         , set = \sm m -> { m | bubblingModel = sm }
-        , init = Bubbling.init
+        , init = \_ -> Bubbling.init
         , update = Bubbling.update
         , subscriptions = Bubbling.subscriptions
         }
@@ -53,7 +53,7 @@ subscriptions =
         { msg = SubscriptionsMsg
         , get = .subscriptionsModel
         , set = \sm m -> { m | subscriptionsModel = sm }
-        , init = Subscriptions.init
+        , init = \_ -> Subscriptions.init
         , update = Subscriptions.update
         , subscriptions = Subscriptions.subscriptions
         }

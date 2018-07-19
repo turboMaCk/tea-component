@@ -63,7 +63,7 @@ type Glue model subModel msg subMsg a
         { msg : a -> msg
         , get : model -> subModel
         , set : subModel -> model -> model
-        , init : ( subModel, Cmd msg )
+        , init : () -> ( subModel, Cmd msg )
         , update : subMsg -> model -> ( subModel, Cmd msg )
         , subscriptions : model -> Sub msg
         }
@@ -81,7 +81,7 @@ simple :
     { msg : subMsg -> msg
     , get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd subMsg )
+    , init : () -> ( subModel, Cmd subMsg )
     , update : subMsg -> subModel -> ( subModel, Cmd subMsg )
     , subscriptions : subModel -> Sub subMsg
     }
@@ -92,7 +92,7 @@ simple :
     { msg : subMsg -> msg
     , get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd subMsg )
+    , init : () -> ( subModel, Cmd subMsg )
     , update : subMsg -> subModel -> ( subModel, Cmd subMsg )
     , subscriptions : subModel -> Sub subMsg
     }
@@ -102,7 +102,7 @@ simple { msg, get, set, init, update, subscriptions } =
         { msg = msg
         , get = get
         , set = set
-        , init = init |> map msg
+        , init = map msg << init
         , update =
             \subMsg model ->
                 get model
@@ -126,7 +126,7 @@ Usefull when module's api has generic `msg` type. Module can also perfrom action
 poly :
     { get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd msg )
+    , init : () -> ( subModel, Cmd msg )
     , update : subMsg -> subModel -> ( subModel, Cmd msg )
     , subscriptions : subModel -> Sub msg
     }
@@ -136,7 +136,7 @@ poly :
 poly :
     { get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd msg )
+    , init : () -> ( subModel, Cmd msg )
     , update : subMsg -> subModel -> ( subModel, Cmd msg )
     , subscriptions : subModel -> Sub msg
     }
@@ -172,7 +172,7 @@ glue :
     { msg : a -> msg
     , get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd msg )
+    , init : () -> ( subModel, Cmd msg )
     , update : subMsg -> model -> ( subModel, Cmd msg )
     , subscriptions : model -> Sub msg
     }
@@ -183,7 +183,7 @@ glue :
     { msg : a -> msg
     , get : model -> subModel
     , set : subModel -> model -> model
-    , init : ( subModel, Cmd msg )
+    , init : () -> ( subModel, Cmd msg )
     , update : subMsg -> model -> ( subModel, Cmd msg )
     , subscriptions : model -> Sub msg
     }
@@ -216,7 +216,7 @@ init : Glue model subModel msg subMsg a -> ( subModel -> b, Cmd msg ) -> ( b, Cm
 init (Glue { init }) ( fc, cmd ) =
     let
         ( subModel, subCmd ) =
-            init
+            init ()
     in
         ( fc subModel, Cmd.batch [ cmd, subCmd ] )
 
@@ -404,7 +404,7 @@ counter =
         { msg = CounterMsg
         , get = .counterModel
         , set = \subModel model -> { model | counterModel = subModel }
-        , init = Counter.init |> Glue.map CounterMsg
+        , init = \_ -> Counter.init |> Glue.map CounterMsg
         , update =
             \subMsg model ->
                 Counter.update subMsg model.counterModel

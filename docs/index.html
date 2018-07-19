@@ -9217,7 +9217,8 @@ var _user$project$Glue$init = F2(
 	function (_p27, _p26) {
 		var _p28 = _p27;
 		var _p29 = _p26;
-		var _p30 = _p28._0.init;
+		var _p30 = _p28._0.init(
+			{ctor: '_Tuple0'});
 		var subModel = _p30._0;
 		var subCmd = _p30._1;
 		return {
@@ -9240,52 +9241,57 @@ var _user$project$Glue$Glue = function (a) {
 };
 var _user$project$Glue$simple = function (_p31) {
 	var _p32 = _p31;
-	var _p34 = _p32.msg;
-	var _p33 = _p32.get;
+	var _p35 = _p32.msg;
+	var _p34 = _p32.get;
 	return _user$project$Glue$Glue(
 		{
-			msg: _p34,
-			get: _p33,
+			msg: _p35,
+			get: _p34,
 			set: _p32.set,
-			init: A2(_user$project$Glue$map, _p34, _p32.init),
+			init: function (_p33) {
+				return A2(
+					_user$project$Glue$map,
+					_p35,
+					_p32.init(_p33));
+			},
 			update: F2(
 				function (subMsg, model) {
 					return A2(
 						_user$project$Glue$map,
-						_p34,
+						_p35,
 						A2(
 							_p32.update,
 							subMsg,
-							_p33(model)));
+							_p34(model)));
 				}),
 			subscriptions: function (model) {
 				return A2(
 					_elm_lang$core$Platform_Sub$map,
-					_p34,
+					_p35,
 					_p32.subscriptions(
-						_p33(model)));
+						_p34(model)));
 			}
 		});
 };
-var _user$project$Glue$poly = function (_p35) {
-	var _p36 = _p35;
-	var _p37 = _p36.get;
+var _user$project$Glue$poly = function (_p36) {
+	var _p37 = _p36;
+	var _p38 = _p37.get;
 	return _user$project$Glue$Glue(
 		{
 			msg: _elm_lang$core$Basics$identity,
-			get: _p37,
-			set: _p36.set,
-			init: _p36.init,
+			get: _p38,
+			set: _p37.set,
+			init: _p37.init,
 			update: F2(
 				function (subMsg, model) {
 					return A2(
-						_p36.update,
+						_p37.update,
 						subMsg,
-						_p37(model));
+						_p38(model));
 				}),
 			subscriptions: function (model) {
-				return _p36.subscriptions(
-					_p37(model));
+				return _p37.subscriptions(
+					_p38(model));
 			}
 		});
 };
@@ -9308,16 +9314,18 @@ var _user$project$Bubbling_Main$counter = _user$project$Glue$poly(
 					model,
 					{counter: subModel});
 			}),
-		init: _user$project$Bubbling_Counter$init(_user$project$Bubbling_Main$CountChanged),
+		init: function (_p0) {
+			return _user$project$Bubbling_Counter$init(_user$project$Bubbling_Main$CountChanged);
+		},
 		update: _user$project$Bubbling_Counter$update(_user$project$Bubbling_Main$CountChanged),
-		subscriptions: function (_p0) {
+		subscriptions: function (_p1) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	});
 var _user$project$Bubbling_Main$subscriptions = A2(
 	_user$project$Glue$subscriptions,
 	_user$project$Bubbling_Main$counter,
-	function (_p1) {
+	function (_p2) {
 		return _elm_lang$core$Platform_Sub$none;
 	});
 var _user$project$Bubbling_Main$init = A2(
@@ -9330,20 +9338,20 @@ var _user$project$Bubbling_Main$init = A2(
 	});
 var _user$project$Bubbling_Main$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		if (_p2.ctor === 'CounterMsg') {
+		var _p3 = msg;
+		if (_p3.ctor === 'CounterMsg') {
 			return A3(
 				_user$project$Glue$update,
 				_user$project$Bubbling_Main$counter,
-				_p2._0,
+				_p3._0,
 				{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 		} else {
-			var _p3 = _p2._0;
-			return (_elm_lang$core$Native_Utils.cmp(_p3, model.max) > 0) ? {
+			var _p4 = _p3._0;
+			return (_elm_lang$core$Native_Utils.cmp(_p4, model.max) > 0) ? {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{max: _p3}),
+					{max: _p4}),
 				_1: _elm_lang$core$Platform_Cmd$none
 			} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
@@ -9351,7 +9359,7 @@ var _user$project$Bubbling_Main$update = F2(
 var _user$project$Bubbling_Main$CounterMsg = function (a) {
 	return {ctor: 'CounterMsg', _0: a};
 };
-var _user$project$Bubbling_Main$triggerIncrement = function (_p4) {
+var _user$project$Bubbling_Main$triggerIncrement = function (_p5) {
 	return _GlobalWebIndex$cmd_extra$Cmd_Extra$perform(
 		_user$project$Bubbling_Main$CounterMsg(_user$project$Bubbling_Counter$Increment));
 };
@@ -9459,16 +9467,18 @@ var _user$project$Counter_Main$counter = _user$project$Glue$simple(
 					model,
 					{counter: subModel});
 			}),
-		init: _user$project$Counter_Counter$init,
+		init: function (_p0) {
+			return _user$project$Counter_Counter$init;
+		},
 		update: _user$project$Counter_Counter$update,
-		subscriptions: function (_p0) {
+		subscriptions: function (_p1) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	});
 var _user$project$Counter_Main$subscriptions = A2(
 	_user$project$Glue$subscriptions,
 	_user$project$Counter_Main$counter,
-	function (_p1) {
+	function (_p2) {
 		return _elm_lang$core$Platform_Sub$none;
 	});
 var _user$project$Counter_Main$init = A2(
@@ -9481,11 +9491,11 @@ var _user$project$Counter_Main$init = A2(
 	});
 var _user$project$Counter_Main$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
+		var _p3 = msg;
 		return A3(
 			_user$project$Glue$update,
 			_user$project$Counter_Main$counter,
-			_p2._0,
+			_p3._0,
 			{
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
@@ -9555,7 +9565,9 @@ var _user$project$Subscriptions_Main$moves = _user$project$Glue$simple(
 					model,
 					{moves: subModel});
 			}),
-		init: _user$project$Subscriptions_Moves$init,
+		init: function (_p0) {
+			return _user$project$Subscriptions_Moves$init;
+		},
 		update: _user$project$Subscriptions_Moves$update,
 		subscriptions: _user$project$Subscriptions_Moves$subscriptions
 	});
@@ -9569,13 +9581,13 @@ var _user$project$Subscriptions_Main$init = A2(
 	});
 var _user$project$Subscriptions_Main$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'MovesMsg':
 				return A3(
 					_user$project$Glue$update,
 					_user$project$Subscriptions_Main$moves,
-					_p0._0,
+					_p1._0,
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 			case 'Clicked':
 				return {
@@ -9590,7 +9602,7 @@ var _user$project$Subscriptions_Main$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{movesOn: _p0._0}),
+						{movesOn: _p1._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -9672,7 +9684,7 @@ var _user$project$Subscriptions_Main$subscriptions = A3(
 		return _.movesOn;
 	},
 	_user$project$Subscriptions_Main$moves,
-	function (_p1) {
+	function (_p2) {
 		return _elm_lang$mouse$Mouse$clicks(_user$project$Subscriptions_Main$Clicked);
 	});
 var _user$project$Subscriptions_Main$main = _elm_lang$html$Html$program(
@@ -9830,7 +9842,9 @@ var _user$project$Main$subscriptions = _user$project$Glue$simple(
 					m,
 					{subscriptionsModel: sm});
 			}),
-		init: _user$project$Subscriptions_Main$init,
+		init: function (_p2) {
+			return _user$project$Subscriptions_Main$init;
+		},
 		update: _user$project$Subscriptions_Main$update,
 		subscriptions: _user$project$Subscriptions_Main$subscriptions
 	});
@@ -9849,7 +9863,9 @@ var _user$project$Main$bubbling = _user$project$Glue$simple(
 					m,
 					{bubblingModel: sm});
 			}),
-		init: _user$project$Bubbling_Main$init,
+		init: function (_p3) {
+			return _user$project$Bubbling_Main$init;
+		},
 		update: _user$project$Bubbling_Main$update,
 		subscriptions: _user$project$Bubbling_Main$subscriptions
 	});
@@ -9868,7 +9884,9 @@ var _user$project$Main$counter = _user$project$Glue$simple(
 					m,
 					{counterModel: sm});
 			}),
-		init: _user$project$Counter_Main$init,
+		init: function (_p4) {
+			return _user$project$Counter_Main$init;
+		},
 		update: _user$project$Counter_Main$update,
 		subscriptions: _user$project$Counter_Main$subscriptions
 	});
@@ -9888,36 +9906,36 @@ var _user$project$Main$init = A2(
 			})));
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
+		var _p5 = msg;
+		switch (_p5.ctor) {
 			case 'CounterMsg':
 				return A3(
 					_user$project$Glue$update,
 					_user$project$Main$counter,
-					_p2._0,
+					_p5._0,
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 			case 'BubblingMsg':
 				return A3(
 					_user$project$Glue$update,
 					_user$project$Main$bubbling,
-					_p2._0,
+					_p5._0,
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 			case 'SubscriptionsMsg':
 				return A3(
 					_user$project$Glue$update,
 					_user$project$Main$subscriptions,
-					_p2._0,
+					_p5._0,
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 			case 'SelectCounter':
 				return A2(
 					_user$project$Main_ops['=>'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{selectedCounter: _p2._0}),
+						{selectedCounter: _p5._0}),
 					_elm_lang$core$Platform_Cmd$none);
 			default:
-				var _p3 = model.selectedCounter;
-				if (_p3.ctor === 'First') {
+				var _p6 = model.selectedCounter;
+				if (_p6.ctor === 'First') {
 					return A2(
 						_user$project$Main_ops['=>'],
 						A3(_user$project$Glue$updateWith, _user$project$Main$counter, _user$project$Counter_Main$increment, model),
