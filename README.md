@@ -2,11 +2,9 @@
 
 [![Build Status](https://travis-ci.org/turboMaCk/glue.svg?branch=master)](https://travis-ci.org/turboMaCk/glue)
 
-This package helps you to reduce boilerplate while composing TEA-based (The Elm Architecture) applications using
-[`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Cmd#map),
-[`Sub.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Sub#map)
-and [`Html.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#map).
-`Glue` is just thin abstraction over these functions so it's easy to plug it in and out.
+This package helps you reduce boilerplate when composing TEA-based (The Elm Architecture) applications using
+[`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map].
+`Glue` is just a thin abstraction over these functions so it's easy to plug it in and out.
 It's fair to say that `Glue` is an alternative to [elm-parts](http://package.elm-lang.org/packages/debois/elm-parts/latest),
 but uses a different approach (no better or worse) for composing isolated pieces/modules together.
 
@@ -18,13 +16,13 @@ Feedback and contributions to both code and documentation are very welcome.
 
 ## Important Note!
 
-This package is not necessary designed for either code splitting or reuse but rather for **state separation**.
+This package is not necessarily designed for either code splitting or reuse but rather for **state separation**.
 State separation might or might not be important for reusing certain parts of application.
-Not everything is necessary stateful. For instance many UI parts can be express just by using `view` function
-to which you pass `msg` constructors (`view : msg -> Model -> Html msg` for instance) and let consumer to manage its state.
+Not everything is necessarily stateful. For instance many UI parts can be expressed just by using `view` function
+to which you pass `msg` constructors (`view : msg -> Model -> Html msg` for instance) and let consumer manage its state.
 On the other hand some things like larger parts of applications or parts containing a lot of self-maintainable stateful logic
 can benefit from state isolation since it reduces state handling imposed on consumer of that module.
-Generally it's good rule to always choose simpler approach (And using stateless abstraction is usually simpler) -
+Generally it's a good rule of thumb to always choose simpler approach (And using stateless abstraction is usually simpler) -
 *If you aren't sure if you can benefit from extra isolation don't use it.* Always try to define as much logic as you can
 using just simple functions and data. Then you can think about possible state separation in places where too much of it is exposed.
 **First rule is to avoid breaking of [single source of truth principle](https://en.wikipedia.org/wiki/Single_source_of_truth)**.
@@ -33,21 +31,21 @@ If you find yourself synchronizing some state from one place to another than tha
 
 ## tl;dr
 
-This package is a result of my experience with building larger application in Elm where some modules lives in isolation from others.
+This package is a result of my experience with building larger application in Elm where some modules live in isolation from others.
 The goals and features of this package are:
 
 - Reduce boilerplate in `update` and `init` functions.
 - Reduce [indirection](https://en.wikipedia.org/wiki/Indirection) in glueing between parent and child module.
 - Define glueing logic on consumer level.
 - Enforce common interface in `init` `update` `subscribe` and `view`.
-- *You should read whole README anyway.*
+- *You should read the whole README anyway.*
 
 ## Install
 
 Is as you would expect...
 
 ```
-$ elm-package install turboMaCk/glue
+$ elm install turboMaCk/glue
 ```
 
 ## Examples
@@ -56,7 +54,7 @@ The best place to start is probably to have a look at [examples](https://github.
 
 In particular, you can find:
 
-### [Transforming Isolated Elm Apps together using Glue](https://github.com/turboMaCk/glue/tree/master/examples/Counter)
+### [Composing Isolated Elm Apps together using Glue](https://github.com/turboMaCk/glue/tree/master/examples/Counter)
 
 ### [Composing Modules with Subscriptions](https://github.com/turboMaCk/glue/tree/master/examples/Subscriptions)
 
@@ -65,21 +63,20 @@ In particular, you can find:
 ## Why?
 
 TEA is an awesome way to write Html-based apps in Elm. However, not every application can be defined just in terms of single `Model` and `Msg`.
-Basic separation of [`Html.program`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#program) is really nice
-but in some cases these functions and `Model` and `Msg` tend to grow pretty quickly in an unmanageable way so you need to start breaking things.
+Basic separation of [`Browser.element`](https://package.elm-lang.org/packages/elm/browser/latest/Browser#element) is really nice
+but in some cases these functions and `Model` and `Msg` tend to grow pretty quickly in an unmanageable way so you need to start breaking things up.
 
 There are [many ways](https://www.reddit.com/r/elm/comments/5jd2xn/how_to_structure_elm_with_multiple_models/dbkpgbd/)
-you can start. In particular rest of this document will focus just on [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns).
+you can go about it. In particular the rest of this document will focus just on [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns).
 This technique is useful for isolating parts that really don't need know too much about each other. It helps to reduce number of things particular module is touching and
 limit number of things programmer has to reason about while adding or changing behaviour of such isolated part of system.
 In tea this is especially touching `Msg` type and `update` function.
 
-**It's important to understand that `init` `update` `view` and `subscriptions` are all isolated functions connected via `Html.program`.
-In pure functional programming we're "never" really managing state ourselves but are rather composing functions that takes state as a data and produce new version of it (`update` function in TEA).**
+**It's important to understand that `init` `update` `view` and `subscriptions` are all isolated functions connected via `Browser.element`.
+In pure functional programming we're "never" really managing state ourselves but are rather composing functions that takes state as data and produce new version of it (`update` function in TEA).**
 
-Now lets have a look on how we can use [`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#map),
-[`Sub.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Sub#map)
-and [`Html.map`](http://package.elm-lang.org/packages/debois/elm-parts/latest) for separation in TEA based app.
+Now let's have a look at how we can use [`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map]
+for separation in TEA based app.
 We will nest `init`, `update`, `subscriptions` and `view` one into another and map them from child to parents types.
 Higher level module is then using these units to manage just a subset of its overall state (`Model`).
 Here is how `Model` and `Msg` types of a parent application might look like:
@@ -101,9 +98,7 @@ type Msg
 
 Basically, the top-level module only holds the `Model` of a child module (`SubModule`) as a single value, and wraps its `Msg` inside one of its `Msg` constructors (`SubModuleMsg`).
 Of course, `init`, `update`, and `subscriptions` also have to know how to work with this part of `Model`, and there you need
-[`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#map),
-[`Html.map`](http://package.elm-lang.org/packages/debois/elm-parts/latest) and
-[`Sub.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Sub#map).
+[`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map].
 For instance, this is how simple delegation of `Msg` in `update` might look:
 
 ```elm
@@ -121,21 +116,21 @@ update msg model =
 ```
 
 As you can see, this is quite neat even though it requires some boiler-plate code.
-Let's take a look at `view` and [`Html.map`](http://package.elm-lang.org/packages/debois/elm-parts/latest) in action:
+Let's take a look at `view` and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map) in action:
 
 ```elm
 view : Model -> Html Msg
 view model =
-   Html.div
-       []
+   Html.div []
        [ ...
        , Html.map SubModuleMsg <| SubModule.view model.subModuleModel
-       , ... ]
+       , ...
+       ]
 ```
 
-You can use [`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#map) inside `init` as well and
-[`Sub.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Sub#map) which is fairly similar to
-[`Html.map`](http://package.elm-lang.org/packages/debois/elm-parts/latest) in `subscriptions` to finish wiring of a child module (`SubModule`).
+You can use [`Cmd.map`][cmd-map] inside `init` as well as
+[`Sub.map`][sub-map] which is fairly similar to
+[`Html.map`][html-map] in `subscriptions` to finish wiring of a child module (`SubModule`).
 
 And this is as far as pure TEA goes. This may possibly be good fit for your needs, and that's OK. Why might you still want to use this package?
 
@@ -154,7 +149,7 @@ Other functions within the `Glue` package use the `Glue.Glue` type as proxy to a
 
 ### Glueing independent TEA App
 
-This is how we can construct the `Glue` type for [counter example](https://guide.elm-lang.org/architecture/user_input/buttons.html):
+This is how we can construct the `Glue` type for [counter example](https://guide.elm-lang.org/architecture/buttons.html):
 
 ```elm
 import Glue exposing (Glue)
@@ -173,7 +168,7 @@ counter =
         , subscriptions = \_ -> Sub.none
         }
 ```
-All mappings from one types to another (`Model` and `Msg` of parent/child) happens in here.
+All mappings from one type to another (`Model` and `Msg` of parent/child) happen in here.
 Definition of this interface depends on API of child module (`Counter` in this case).
 
 With `Glue` defined, we can go and integrate it with the parent.
@@ -214,7 +209,7 @@ As you can see we're using just `Glue.init`, `Glue.update` and `Glue.view` in th
 
 A "polymorphic module" is what I call TEA modules that have to be integrated into some other app.
 Such a module has usually API like `update : Config msg -> Model -> ( Model, Cmd msg )`.
-These types of modules often performs [child to parent communication](#action-bubbling)
+These types of modules often perform [child to parent communication](#action-bubbling)
 but let's leave this detail for now.
 Basically these modules are using `Cmd.map`, `Html.map`, and `Sub.map` internally
 so you don't need to map these types in parent module or `Glue` type definition.
@@ -258,7 +253,7 @@ counter =
         }
 ```
 
-As you can see we've switch from `Glue.simple` constructor to `Glue.poly` one.
+As you can see we've switched from `Glue.simple` constructor to `Glue.poly` one.
 Also type annotation of counter has changed. `a` is now `Msg` instead of `Counter.Msg`.
 This is because view now returns `Html Msg` rather then `Html Counter.Msg`.
 This also means we no longer need to supply `msg` since `Glue.poly` doesn't need it (we actually know this should be identity function).
@@ -348,9 +343,9 @@ update parentMsg msg model =
         ( newModel, notify parentMsg newModel )
 ```
 
-Now both `init` and `update` should now send `Cmd` after `Model` is updated.
+Now both `init` and `update` should send `Cmd` after `Model` is updated.
 This is a breaking change to `Counter`'s API so we need to change its integration as well.
-Since we want to actually use this message and do something with it let me first update
+Since we want to actually use this message and do something with it let's first update
 the parent's `Model` and `Msg`:
 
 ```elm
@@ -398,7 +393,7 @@ update msg model =
                 ( model, Cmd.none )
 ```
 
-As you can see we're setting `max` to received int if its greater than current value.
+As you can see we're setting `max` to received int if it's greater than the current value.
 
 Since the parent is ready to handle actions from `Counter` our last step is simply
 to update the `Glue` construction for the new APIs:
@@ -424,3 +419,7 @@ See this [complete example](https://github.com/turboMaCk/glue/tree/master/exampl
 BSD-3-Clause
 
 Copyright 2017 Marek Fajkus
+
+[cmd-map]: https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map
+[sub-map]: https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map
+[html-map]: https://package.elm-lang.org/packages/elm/html/latest/Html#map

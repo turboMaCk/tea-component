@@ -9,9 +9,9 @@ module Glue exposing
 {-| Composing Elm applications from smaller isolated parts (modules).
 You can think about this as about lightweight abstraction built around `(model, Cmd msg)` pair
 that reduces boilerplate required for composing `init` `update` `view` and `subscribe` using
-[`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Cmd#map),
-[`Sub.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Sub#map)
-and [`Html.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#map).
+[`Cmd.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map),
+[`Sub.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map)
+and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map).
 
 
 # Datatype Definition
@@ -43,7 +43,7 @@ and [`Html.map`](http://package.elm-lang.org/packages/elm-lang/html/2.0.0/Html#m
 import Html exposing (Html)
 
 
-{-| `Glue` defines interface mapings between parent and child module.
+{-| `Glue` defines interface mappings between parent and child module.
 
 You can create `Glue` with the [`simple`](#simple), [`poly`](#poly) or [`glue`](#glue) function constructor in case of non-standard APIs.
 Every glue layer is defined in terms of `Model`, `[Submodule].Model` `Msg`, `[Submodule].Msg` and `a`.
@@ -69,19 +69,7 @@ type Glue model subModel msg subMsg a
 {-| Simple [`Glue`](#Glue) constructor.
 
 Generally useful for composing independent TEA modules together.
-If your module's API is polymofphic use [`poly`](#poly) constructor instead.
-
-**Interface:**
-
-    simple :
-        { msg : subMsg -> msg
-        , get : model -> subModel
-        , set : subModel -> model -> model
-        , init : () -> ( subModel, Cmd subMsg )
-        , update : subMsg -> subModel -> ( subModel, Cmd subMsg )
-        , subscriptions : subModel -> Sub subMsg
-        }
-        -> Glue model subModel msg subMsg subMsg
+If your module's API is polymorphic use [`poly`](#poly) constructor instead.
 
 -}
 simple :
@@ -114,18 +102,7 @@ simple rec =
 
 {-| Polymorphic [`Glue`](#Glue) constructor.
 
-Usefull when module's api has generic `msg` type. Module can also perfrom action bubbling to parent.
-
-**Interface:**
-
-    poly :
-        { get : model -> subModel
-        , set : subModel -> model -> model
-        , init : () -> ( subModel, Cmd msg )
-        , update : subMsg -> subModel -> ( subModel, Cmd msg )
-        , subscriptions : subModel -> Sub msg
-        }
-        -> Glue model subModel msg subMsg msg
+Useful when module's api has generic `msg` type. Module can also perform action bubbling to parent.
 
 -}
 poly :
@@ -159,18 +136,6 @@ Useful when you can't use either [`simple`](#simple) or [`poly`](#poly).
 This can be caused by nonstandard API where one of the functions uses generic `msg` and other `SubModule.Msg`.
 
 _Always use this constructor as your last option for constructing [`Glue`](#Glue)._
-
-**Interface:**
-
-    glue :
-        { msg : a -> msg
-        , get : model -> subModel
-        , set : subModel -> model -> model
-        , init : () -> ( subModel, Cmd msg )
-        , update : subMsg -> model -> ( subModel, Cmd msg )
-        , subscriptions : model -> Sub msg
-        }
-        -> Glue model subModel msg subMsg a
 
 -}
 glue :
@@ -214,7 +179,7 @@ init (Glue rec) ( fc, cmd ) =
     ( fc subModel, Cmd.batch [ cmd, subCmd ] )
 
 
-{-| Update submodule's state using it's `update` function.
+{-| Update submodule's state using its `update` function.
 
     type Msg
         = CounterMsg Counter.Msg
@@ -318,7 +283,7 @@ updateWith (Glue rec) fc model =
 
 {-| Trigger Cmd in by child's function
 
-_Commands are async. Therefor trigger don't make any update directly.
+_Commands are async. Therefore trigger doesn't make any update directly.
 Use [`updateWith`](#updateWith) over `trigger` when you can._
 
     triggerIncrement : Counter.Model -> Cmd Counter.Msg
@@ -365,10 +330,10 @@ updateWithTrigger (Glue rec) fc ( model, cmd ) =
 -- Helpers
 
 
-{-| Tiny abstraction over [`Cmd.map`](http://package.elm-lang.org/packages/elm-lang/core/5.1.1/Platform-Cmd#map)
+{-| Tiny abstraction over [`Cmd.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map)
 packed in `(model, Cmd msg)` pair that helps you to reduce boilerplate while turning generic TEA app to [`Glue`](#Glue) using [`glue`](#glue) constructor.
 
-This function is generally usefull for turning update and init functions in [`Glue`](#glue) definition.
+This function is generally useful for turning update and init functions in [`Glue`](#glue) definition.
 
     type alias Model =
         { message : String
@@ -378,8 +343,7 @@ This function is generally usefull for turning update and init functions in [`Gl
     type Msg
         = CounterMsg Counter.Msg
 
-
-    -- this works liske `simple` constructor
+    -- this works like `simple` constructor
     counter : Glue Model Counter.Model Msg Counter.Msg
     counter =
         Glue.glue

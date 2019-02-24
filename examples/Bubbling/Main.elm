@@ -2,7 +2,7 @@ module Bubbling.Main exposing (Model, Msg, init, subscriptions, triggerIncrement
 
 {-| This is example of child to parent communication using Cmd bubbling.
 
-This Example works as demonstration of such a communication and do not really
+This Example works as demonstration of such a communication and does not really
 reflect real world use-case of this practice. Clearly if parent component is interested
 in model of sub component (Even/Odd is really tightly related to child model)
 it should really be part of its Model and passed to child rather than other way around.
@@ -87,6 +87,7 @@ update msg model =
         CountChanged num ->
             if num > model.max then
                 ( { model | max = num }, Cmd.none )
+
             else
                 ( model, Cmd.none )
 

@@ -1,6 +1,6 @@
 module Subscriptions.Moves exposing (Model, Msg, Position, init, positionDecoder, subscriptions, update, view)
 
-{-| This demostrates how subscription composition works with glueing.
+{-| This demonstrates how subscription composition works with glueing.
 
 Please be aware that this example was made just for purposes of this demonstration.
 
@@ -9,6 +9,7 @@ Please be aware that this example was made just for purposes of this demonstrati
 import Browser.Events
 import Html exposing (Html)
 import Json.Decode as Decode exposing (Decoder)
+
 
 
 -- Subscriptions

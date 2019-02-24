@@ -8,10 +8,10 @@ for something as simple as counter and text which are interested in same action.
 
 -}
 
+import Browser
 import Counter.Counter as Counter
 import Glue exposing (Glue)
 import Html exposing (Html)
-import Browser
 
 
 counter : Glue Model Counter.Model Msg Counter.Msg Counter.Msg
@@ -66,7 +66,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "Let's change cunter!", Cmd.none )
+    ( Model "Let's change the counter!", Cmd.none )
         |> Glue.init counter
 
 

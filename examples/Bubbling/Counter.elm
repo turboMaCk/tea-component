@@ -57,8 +57,7 @@ update parentMsg msg model =
 view : (Msg -> msg) -> Model -> Html msg
 view msg model =
     Html.map msg <|
-        Html.div
-            []
+        Html.div []
             [ Html.button [ Html.Events.onClick Decrement ] [ Html.text "-" ]
             , Html.text <| String.fromInt model
             , Html.button [ Html.Events.onClick Increment ] [ Html.text "+" ]

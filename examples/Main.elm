@@ -3,9 +3,9 @@ module Main exposing (Model, Msg(..), SelectedCounter(..), bubbling, counter, co
 {-| This module glues all other examples into one Html.Program
 
 This is used mostly for testing purposes. If this file compiles
-than all examples are up to data with recent API.
+than all examples are up to date with recent API.
 
-It's really discutable if something like this is usefull in practice.
+It's really debatable if something like this is useful in practice.
 Generally I would say it's not in most cases. This is really like rendering multiple TEA
 applications into single html using multiple `embed`s.
 
@@ -13,6 +13,7 @@ applications into single html using multiple `embed`s.
 
 -- Sub Modules
 
+import Browser
 import Bubbling.Main as Bubbling
 import Counter.Main as Counter
 import Glue exposing (Glue)
@@ -20,7 +21,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onCheck, onClick)
 import Subscriptions.Main as Subscriptions
-import Browser
 
 
 counter : Glue Model Counter.Model Msg Counter.Msg Counter.Msg
