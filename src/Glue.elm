@@ -15,8 +15,12 @@ You can think about this as about lightweight abstraction built around `(model, 
 [`Sub.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map)
 and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map).
 
+It's recommended to avoid usage of pattern with statefull modules if not necessary.
+In cases where one would like to use `Cmd.map` pattern anyway though,
+Glue can be used to avoid repetable patterns for mapping the msg types
+and updating models.
 
-# Datatype Definition
+# Datatype
 
 @docs Glue
 
@@ -55,10 +59,11 @@ and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map)
 import Html exposing (Html)
 
 
-{-| `Glue` defines interface mappings between parent and child module.
+{-| `Glue` describes an interface between parent and child module.
 
-You can create `Glue` with the [`simple`](#simple), [`poly`](#poly) or [`glue`](#glue) function constructor in case of non-standard APIs.
-Every glue layer is defined in terms of `Model`, `[Submodule].Model` `Msg`, `[Submodule].Msg` and `a`.
+You can create `Glue` with the [`simple`](#simple) or [`poly`](#poly) function constructor.
+Every glue layer is defined in terms of `Model`, `[Submodule].Model` `Msg`, `[Submodule].Msg`
+and `a` (which is an Msg type emited by child module and is usually ither same as either `subMsg` or `msg`).
 
   - `model` is `Model` of parent
   - `subModel` is `Model` of child
