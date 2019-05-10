@@ -76,11 +76,7 @@ simple :
     }
     -> Glue model subModel msg subMsg subMsg
 simple rec =
-    Glue
-        { msg = rec.msg
-        , get = rec.get
-        , set = rec.set
-        }
+    Glue rec
 
 
 {-| Polymorphic [`Glue`](#Glue) constructor.
@@ -91,9 +87,6 @@ Useful when module's api has generic `msg` type. Module can also perform action 
 poly :
     { get : model -> subModel
     , set : subModel -> model -> model
-    , init : () -> ( subModel, Cmd msg )
-    , update : subMsg -> subModel -> ( subModel, Cmd msg )
-    , subscriptions : subModel -> Sub msg
     }
     -> Glue model subModel msg subMsg msg
 poly rec =
