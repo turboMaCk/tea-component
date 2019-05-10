@@ -4,8 +4,6 @@ module Subscriptions.Main exposing (Model, Msg, init, subscriptions, update, vie
 between parent and child.
 -}
 
--- import Browser exposing (Position)
-
 import Browser
 import Browser.Events
 import Glue exposing (Glue)
@@ -22,9 +20,6 @@ moves =
         { msg = MovesMsg
         , get = .moves
         , set = \subModel model -> { model | moves = subModel }
-        , init = \_ -> Moves.init
-        , update = Moves.update
-        , subscriptions = Moves.subscriptions
         }
 
 
@@ -35,7 +30,7 @@ moves =
 subscriptions : Model -> Sub Msg
 subscriptions =
     (\_ -> Browser.Events.onClick <| Decode.map Clicked Moves.positionDecoder)
-        |> Glue.subscriptionsWhen .movesOn moves
+        |> Glue.subscriptionsWhen .movesOn moves Moves.subscriptions
 
 
 main : Program () Model Msg
@@ -62,7 +57,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( Model 0 True, Cmd.none )
-        |> Glue.init moves
+        |> Glue.init moves Moves.init
 
 
 
@@ -80,7 +75,7 @@ update msg model =
     case msg of
         MovesMsg movesMsg ->
             ( model, Cmd.none )
-                |> Glue.update moves movesMsg
+                |> Glue.update moves Moves.update movesMsg
 
         Clicked _ ->
             ( { model | clicks = model.clicks + 1 }, Cmd.none )

@@ -21,9 +21,6 @@ counter =
     Glue.poly
         { get = .counter
         , set = \subModel model -> { model | counter = subModel }
-        , init = \_ -> Counter.init CountChanged
-        , update = Counter.update CountChanged
-        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -37,9 +34,8 @@ triggerIncrement _ =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions =
-    (\_ -> Sub.none)
-        |> Glue.subscriptions counter
+subscriptions _ =
+    Sub.none
 
 
 main : Program () Model Msg
@@ -65,7 +61,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( Model 0, Cmd.none )
-        |> Glue.init counter
+        |> Glue.init counter (Counter.init CountChanged)
 
 
 
@@ -82,7 +78,7 @@ update msg model =
     case msg of
         CounterMsg counterMsg ->
             ( model, Cmd.none )
-                |> Glue.update counter counterMsg
+                |> Glue.update counter (Counter.update CountChanged) counterMsg
 
         CountChanged num ->
             if num > model.max then

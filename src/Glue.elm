@@ -2,7 +2,7 @@ module Glue exposing
     ( Glue
     , simple, poly
     , init, update, view, subscriptions, subscriptionsWhen
-    , updateModel, trigger
+    , updateModel, updateWithTrigger, trigger
     , map
     )
 
@@ -31,7 +31,7 @@ and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map)
 
 # Custom Operations
 
-@docs updateModel, trigger
+@docs updateModel, updateWithTrigger, trigger
 
 
 # Helpers
@@ -121,6 +121,29 @@ init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
     ( fc subModel, Cmd.batch [ cmd, Cmd.map msg subCmd ] )
 
 
+{-| Similar to [`update`](#update) but using custom function.
+
+    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
+    increment model =
+        ( model + 1, Cmd.none )
+
+    update : Msg -> Model -> ( Model, Cmd Msg )
+    update msg model =
+        case msg of
+            IncrementCounter ->
+                ( model, Cmd.none )
+                    |> Glue.updateWithTrigger counter increment
+
+-}
+update : Glue model subModel msg subMsg a -> (subMsg -> subModel -> ( subModel, Cmd a )) -> subMsg -> ( model, Cmd msg ) -> ( model, Cmd msg )
+update (Glue rec) fc msg ( model, cmd ) =
+    let
+        ( subModel, subCmd ) =
+            fc msg <| rec.get model
+    in
+    ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
+
+
 {-| Render submodule's view.
 
     view : Model -> Html msg
@@ -176,29 +199,6 @@ subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
         mainSubscriptions model
 
 
-{-| Similar to [`update`](#update) but using custom function.
-
-    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
-    increment model =
-        ( model + 1, Cmd.none )
-
-    update : Msg -> Model -> ( Model, Cmd Msg )
-    update msg model =
-        case msg of
-            IncrementCounter ->
-                ( model, Cmd.none )
-                    |> Glue.update counter increment
-
--}
-update : Glue model subModel msg subMsg a -> (subModel -> ( subModel, Cmd a )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
-update (Glue rec) fc ( model, cmd ) =
-    let
-        ( subModel, subCmd ) =
-            fc <| rec.get model
-    in
-    ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
-
-
 {-| Use child's exposed function to update it's model
 
     incrementBy : Int -> Counter.Model -> Counter.Model
@@ -240,6 +240,29 @@ Use [`updateModel`](#updateModel) over `trigger` when you can._
 trigger : Glue model subModel msg subMsg a -> (subModel -> Cmd a) -> ( model, Cmd msg ) -> ( model, Cmd msg )
 trigger (Glue rec) fc ( model, cmd ) =
     ( model, Cmd.batch [ Cmd.map rec.msg <| fc <| rec.get model, cmd ] )
+
+
+{-| Similar to [`update`](#update) but using custom function.
+
+    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
+    increment model =
+        ( model + 1, Cmd.none )
+
+    update : Msg -> Model -> ( Model, Cmd Msg )
+    update msg model =
+        case msg of
+            IncrementCounter ->
+                ( model, Cmd.none )
+                    |> Glue.updateWithTrigger counter increment
+
+-}
+updateWithTrigger : Glue model subModel msg subMsg a -> (subModel -> ( subModel, Cmd a )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+updateWithTrigger (Glue rec) fc ( model, cmd ) =
+    let
+        ( subModel, subCmd ) =
+            fc <| rec.get model
+    in
+    ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
 
 
 

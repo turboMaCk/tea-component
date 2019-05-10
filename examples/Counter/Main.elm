@@ -20,9 +20,6 @@ counter =
         { msg = CounterMsg
         , get = .counter
         , set = \subModel model -> { model | counter = subModel }
-        , init = \_ -> Counter.init
-        , update = Counter.update
-        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -39,9 +36,8 @@ increment model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions =
-    (\_ -> Sub.none)
-        |> Glue.subscriptions counter
+subscriptions _ =
+    Sub.none
 
 
 main : Program () Model Msg
@@ -67,7 +63,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( Model "Let's change the counter!", Cmd.none )
-        |> Glue.init counter
+        |> Glue.init counter Counter.init
 
 
 
@@ -83,7 +79,7 @@ update msg model =
     case msg of
         CounterMsg counterMsg ->
             ( { model | message = "Counter has changed!" }, Cmd.none )
-                |> Glue.update counter counterMsg
+                |> Glue.update counter Counter.update counterMsg
 
 
 
