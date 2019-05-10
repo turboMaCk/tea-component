@@ -247,7 +247,7 @@ trigger (Glue rec) fc ( model, cmd ) =
 
 
 {-| Tiny abstraction over [`Cmd.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map)
-packed in `(model, Cmd msg)` pair that helps you to reduce boilerplate while turning generic TEA app to [`Glue`](#Glue) using [`glue`](#glue) constructor.
+packed in `(model, Cmd msg)`.
 
 This function is generally useful for turning update and init functions in [`Glue`](#glue) definition.
 
