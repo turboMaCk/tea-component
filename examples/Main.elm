@@ -23,7 +23,7 @@ import Html.Events exposing (onCheck, onClick)
 import Subscriptions.Main as Subscriptions
 
 
-counter : Glue Model Counter.Model Msg Counter.Msg Counter.Msg
+counter : Glue Model Counter.Model Msg Counter.Msg
 counter =
     Glue.simple
         { msg = CounterMsg
@@ -32,7 +32,7 @@ counter =
         }
 
 
-bubbling : Glue Model Bubbling.Model Msg Bubbling.Msg Bubbling.Msg
+bubbling : Glue Model Bubbling.Model Msg Bubbling.Msg
 bubbling =
     Glue.simple
         { msg = BubblingMsg
@@ -41,7 +41,7 @@ bubbling =
         }
 
 
-subscriptions : Glue Model Subscriptions.Model Msg Subscriptions.Msg Subscriptions.Msg
+subscriptions : Glue Model Subscriptions.Model Msg Subscriptions.Msg
 subscriptions =
     Glue.simple
         { msg = SubscriptionsMsg

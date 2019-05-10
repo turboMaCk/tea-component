@@ -14,7 +14,7 @@ import Json.Decode as Decode
 import Subscriptions.Moves as Moves exposing (Position)
 
 
-moves : Glue Model Moves.Model Msg Moves.Msg Moves.Msg
+moves : Glue Model Moves.Model Msg Moves.Msg
 moves =
     Glue.simple
         { msg = MovesMsg

@@ -14,7 +14,7 @@ import Glue exposing (Glue)
 import Html exposing (Html)
 
 
-counter : Glue Model Counter.Model Msg Counter.Msg Counter.Msg
+counter : Glue Model Counter.Model Msg Counter.Msg
 counter =
     Glue.simple
         { msg = CounterMsg

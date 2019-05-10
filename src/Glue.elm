@@ -15,7 +15,7 @@ You can think about this as about lightweight abstraction built around `(model, 
 [`Sub.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map)
 and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map).
 
-It's recommended to avoid usage of pattern with statefull modules if not necessary.
+It's recommended to avoid usage of pattern with statefull modules unless there is clear benefit to choose it.
 In cases where one would like to use `Cmd.map` pattern anyway though,
 Glue can be used to avoid repetable patterns for mapping the msg types
 and updating models.
@@ -72,9 +72,9 @@ and `a` (which is an Msg type emited by child module and is usually ither same a
   - `a` is type of `Msg` child's views return in `Html a`. Usually it's either `msg` or `subMsg`.
 
 -}
-type Glue model subModel msg subMsg a
+type Glue model subModel msg subMsg
     = Glue
-        { msg : a -> msg
+        { msg : subMsg -> msg
         , get : model -> subModel
         , set : subModel -> model -> model
         }
@@ -91,29 +91,27 @@ simple :
     , get : model -> subModel
     , set : subModel -> model -> model
     }
-    -> Glue model subModel msg subMsg subMsg
+    -> Glue model subModel msg subMsg
 simple rec =
     Glue rec
 
 
-{-| Polymorphic [`Glue`](#Glue) constructor.
+{-| "Polymorphic" [`Glue`](#Glue) constructor.
 
-Useful when module's api has generic `msg` type. Module can also perform action bubbling to parent.
+Useful when module's api has generic `msg` type.
 
 -}
 poly :
     { get : model -> subModel
     , set : subModel -> model -> model
     }
-    -> Glue model subModel msg subMsg msg
+    -> Glue model subModel msg msg
 poly rec =
     Glue
         { msg = identity
         , get = rec.get
         , set = rec.set
         }
-
-
 
 -- Basics
 
@@ -133,7 +131,7 @@ poly rec =
             |> Glue.init secondCounter
 
 -}
-init : Glue model subModel msg subMsg a -> ( subModel, Cmd a ) -> ( subModel -> b, Cmd msg ) -> ( b, Cmd msg )
+init : Glue model subModel msg subMsg -> ( subModel, Cmd subMsg ) -> ( subModel -> a, Cmd msg ) -> ( a, Cmd msg )
 init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
     ( fc subModel, Cmd.batch [ cmd, Cmd.map msg subCmd ] )
 
@@ -152,7 +150,7 @@ init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
                     |> Glue.updateWithTrigger counter increment
 
 -}
-update : Glue model subModel msg subMsg a -> (subMsg -> subModel -> ( subModel, Cmd a )) -> subMsg -> ( model, Cmd msg ) -> ( model, Cmd msg )
+update : Glue model subModel msg subMsg -> (a -> subModel -> ( subModel, Cmd subMsg )) -> a -> ( model, Cmd msg ) -> ( model, Cmd msg )
 update (Glue rec) fc msg ( model, cmd ) =
     let
         ( subModel, subCmd ) =
@@ -171,7 +169,7 @@ update (Glue rec) fc msg ( model, cmd ) =
             ]
 
 -}
-view : Glue model subModel msg subMsg a -> (subModel -> Html a) -> model -> Html msg
+view : Glue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Html msg
 view (Glue rec) v =
     Html.map rec.msg << v << rec.get
 
@@ -185,7 +183,7 @@ view (Glue rec) v =
             |> Glue.subscriptions anotherNestedModule
 
 -}
-subscriptions : Glue model subModel msg subMsg a -> (subModel -> Sub a) -> (model -> Sub msg) -> (model -> Sub msg)
+subscriptions : Glue model subModel msg subMsg -> (subModel -> Sub subMsg) -> (model -> Sub msg) -> (model -> Sub msg)
 subscriptions (Glue { msg, get }) subscriptions_ mainSubscriptions =
     \model ->
         Sub.batch
@@ -207,7 +205,7 @@ subscriptions (Glue { msg, get }) subscriptions_ mainSubscriptions =
             |> Glue.subscriptionsWhen .subModuleSubOn subModule
 
 -}
-subscriptionsWhen : (model -> Bool) -> Glue model subModel msg subMsg a -> (subModel -> Sub a) -> (model -> Sub msg) -> (model -> Sub msg)
+subscriptionsWhen : (model -> Bool) -> Glue model subModel msg subMsg -> (subModel -> Sub subMsg) -> (model -> Sub msg) -> (model -> Sub msg)
 subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
     if cond model then
         subscriptions g subscriptions_ mainSubscriptions model
@@ -232,7 +230,7 @@ subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
                 )
 
 -}
-updateModel : Glue model subModel msg subMsg a -> (subModel -> subModel) -> model -> model
+updateModel : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
 updateModel (Glue rec) fc model =
     rec.set (fc <| rec.get model) model
 
@@ -254,7 +252,7 @@ Use [`updateModel`](#updateModel) over `trigger` when you can._
                     |> Glue.trigger counter triggerIncrement
 
 -}
-trigger : Glue model subModel msg subMsg a -> (subModel -> Cmd a) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+trigger : Glue model subModel msg subMsg -> (subModel -> Cmd subMsg) -> ( model, Cmd msg ) -> ( model, Cmd msg )
 trigger (Glue rec) fc ( model, cmd ) =
     ( model, Cmd.batch [ Cmd.map rec.msg <| fc <| rec.get model, cmd ] )
 
@@ -273,7 +271,7 @@ trigger (Glue rec) fc ( model, cmd ) =
                     |> Glue.updateWithTrigger counter increment
 
 -}
-updateWithTrigger : Glue model subModel msg subMsg a -> (subModel -> ( subModel, Cmd a )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+updateWithTrigger : Glue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
 updateWithTrigger (Glue rec) fc ( model, cmd ) =
     let
         ( subModel, subCmd ) =

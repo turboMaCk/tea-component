@@ -16,7 +16,7 @@ import Html exposing (Html)
 import Task
 
 
-counter : Glue Model Counter.Model Msg Counter.Msg Msg
+counter : Glue Model Counter.Model Msg Msg
 counter =
     Glue.poly
         { get = .counter
