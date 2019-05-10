@@ -1,14 +1,16 @@
 module Glue exposing
     ( Glue
     , simple, poly
-    , init, update, view, subscriptions, subscriptionsWhen
-    , updateModel, updateWithTrigger, trigger
+    , init
+    , update, updateModel, updateWithTrigger, trigger
+    , view
+    , subscriptions, subscriptionsWhen
     , map
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
-You can think about this as about lightweight abstraction built around `(model, Cmd msg)` pair
-that reduces boilerplate required for composing `init` `update` `view` and `subscribe` using
+You can think about this as about lightweight abstraction built around `(model, Cmd msg)` or
+`(model, Sub msg)` pairs repetition of in code for composing `init` `update` `view` and `subscribe` using
 [`Cmd.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map),
 [`Sub.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map)
 and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map).
@@ -21,17 +23,27 @@ and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map)
 
 # Constructors
 
-@docs simple, poly, glue
+@docs simple, poly
 
 
-# Basics
+# Init
 
-@docs init, update, view, subscriptions, subscriptionsWhen
+@docs init
 
 
-# Custom Operations
+# Updates
 
-@docs updateModel, updateWithTrigger, trigger
+@docs update, updateModel, updateWithTrigger, trigger
+
+
+# View
+
+@docs view
+
+
+# Subscriptions
+
+@docs subscriptions, subscriptionsWhen
 
 
 # Helpers
