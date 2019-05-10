@@ -2,7 +2,7 @@ module Glue exposing
     ( Glue
     , simple, poly
     , init, update, view, subscriptions, subscriptionsWhen
-    , updateWith, trigger
+    , updateModel, trigger
     , map
     )
 
@@ -31,7 +31,7 @@ and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map)
 
 # Custom Operations
 
-@docs updateWith, trigger, updateWithTrigger
+@docs updateModel, trigger
 
 
 # Helpers
@@ -210,20 +210,20 @@ update (Glue rec) fc ( model, cmd ) =
         case msg of
             IncrementBy10 ->
                 ( model
-                    |> Glue.updateWith counter (incrementBy 10)
+                    |> Glue.updateModel counter (incrementBy 10)
                 , Cmd.none
                 )
 
 -}
-updateWith : Glue model subModel msg subMsg a -> (subModel -> subModel) -> model -> model
-updateWith (Glue rec) fc model =
+updateModel : Glue model subModel msg subMsg a -> (subModel -> subModel) -> model -> model
+updateModel (Glue rec) fc model =
     rec.set (fc <| rec.get model) model
 
 
 {-| Trigger Cmd in by child's function
 
 _Commands are async. Therefore trigger doesn't make any update directly.
-Use [`updateWith`](#updateWith) over `trigger` when you can._
+Use [`updateModel`](#updateModel) over `trigger` when you can._
 
     triggerIncrement : Counter.Model -> Cmd Counter.Msg
     triggerIncrement _ ->
