@@ -1,11 +1,12 @@
 module Glue exposing
     ( Glue
-    , simple, poly
+    , poly
     , init
     , update, updateModel, updateWithTrigger, trigger
     , view
     , subscriptions, subscriptionsWhen
     , map
+    , glue
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -19,6 +20,7 @@ It's recommended to avoid usage of pattern with statefull modules unless there i
 In cases where one would like to use `Cmd.map` pattern anyway though,
 Glue can be used to avoid repetable patterns for mapping the msg types
 and updating models.
+
 
 # Datatype
 
@@ -86,13 +88,13 @@ Generally useful for composing independent TEA modules together.
 If your module's API is polymorphic use [`poly`](#poly) constructor instead.
 
 -}
-simple :
+glue :
     { msg : subMsg -> msg
     , get : model -> subModel
     , set : subModel -> model -> model
     }
     -> Glue model subModel msg subMsg
-simple rec =
+glue rec =
     Glue rec
 
 
@@ -112,6 +114,8 @@ poly rec =
         , get = rec.get
         , set = rec.set
         }
+
+
 
 -- Basics
 

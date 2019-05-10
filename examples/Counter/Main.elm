@@ -16,7 +16,7 @@ import Html exposing (Html)
 
 counter : Glue Model Counter.Model Msg Counter.Msg
 counter =
-    Glue.simple
+    Glue.glue
         { msg = CounterMsg
         , get = .counter
         , set = \subModel model -> { model | counter = subModel }

@@ -25,7 +25,7 @@ import Subscriptions.Main as Subscriptions
 
 counter : Glue Model Counter.Model Msg Counter.Msg
 counter =
-    Glue.simple
+    Glue.glue
         { msg = CounterMsg
         , get = .counterModel
         , set = \sm m -> { m | counterModel = sm }
@@ -34,7 +34,7 @@ counter =
 
 bubbling : Glue Model Bubbling.Model Msg Bubbling.Msg
 bubbling =
-    Glue.simple
+    Glue.glue
         { msg = BubblingMsg
         , get = .bubblingModel
         , set = \sm m -> { m | bubblingModel = sm }
@@ -43,7 +43,7 @@ bubbling =
 
 subscriptions : Glue Model Subscriptions.Model Msg Subscriptions.Msg
 subscriptions =
-    Glue.simple
+    Glue.glue
         { msg = SubscriptionsMsg
         , get = .subscriptionsModel
         , set = \sm m -> { m | subscriptionsModel = sm }

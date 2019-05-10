@@ -16,7 +16,7 @@ import Subscriptions.Moves as Moves exposing (Position)
 
 moves : Glue Model Moves.Model Msg Moves.Msg
 moves =
-    Glue.simple
+    Glue.glue
         { msg = MovesMsg
         , get = .moves
         , set = \subModel model -> { model | moves = subModel }
