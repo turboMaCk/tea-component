@@ -39,7 +39,33 @@ and updating models.
 
 # Updates
 
+There are 4 versions of functions used to work with model
+updates and commands between modules.
+
+## [`update`](#update)
+
+Used for calling TEA update function by given message.
+
+## [`updateModel`](#updateModel)
+
+For situations when you need to update child model
+by calling function exposed by child module.
+
+## [`updateWithTrigger`](#updateWithTrigger)
+
+For situation when you need to update child model
+by exposed function which also generates commands.
+
 @docs update, updateModel, updateWithTrigger, trigger
+
+
+## [`trigger`](#trigger)
+
+For situations when you need to trigger command of child module
+using function which does not update module.
+
+Note that commands are processed asyngroniously.
+Be sure you're using it this to your adventage not disadvantage.
 
 
 # View
