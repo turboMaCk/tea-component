@@ -1,12 +1,11 @@
 module Glue exposing
     ( Glue
-    , poly
+    , glue, poly
     , init
     , update, updateModel, updateWithTrigger, trigger
-    , view
     , subscriptions, subscriptionsWhen
+    , view
     , map
-    , glue
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -29,10 +28,13 @@ and updating models.
 
 # Constructors
 
-@docs simple, poly
+@docs glue, poly
 
 
 # Init
+
+Designed for chaining initialization of child modules
+from parent init function.
 
 @docs init
 
@@ -40,42 +42,20 @@ and updating models.
 # Updates
 
 There are 4 versions of functions used to work with model
-updates and commands between modules.
-
-## [`update`](#update)
-
-Used for calling TEA update function by given message.
-
-## [`updateModel`](#updateModel)
-
-For situations when you need to update child model
-by calling function exposed by child module.
-
-## [`updateWithTrigger`](#updateWithTrigger)
-
-For situation when you need to update child model
-by exposed function which also generates commands.
+updates and commands between modules each useful in
+a different situation.
 
 @docs update, updateModel, updateWithTrigger, trigger
-
-
-## [`trigger`](#trigger)
-
-For situations when you need to trigger command of child module
-using function which does not update module.
-
-Note that commands are processed asyngroniously.
-Be sure you're using it this to your adventage not disadvantage.
-
-
-# View
-
-@docs view
 
 
 # Subscriptions
 
 @docs subscriptions, subscriptionsWhen
+
+
+# View
+
+@docs view
 
 
 # Helpers
@@ -119,7 +99,6 @@ glue rec =
 
 
 {-| Sepcialized version of constructor.
-
 Useful when module's api has generic `msg` type
 and maps command internally.
 
@@ -261,21 +240,6 @@ updateWithTrigger (Glue rec) fc ( model, cmd ) =
     ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
 
 
-{-| Render submodule's view.
-
-    view : Model -> Html msg
-    view model =
-        Html.div []
-            [ Html.text model.message
-            , Glue.view counter Counter.view model
-            ]
-
--}
-view : Glue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Html msg
-view (Glue rec) v model =
-    Html.map rec.msg <| v <| rec.get model
-
-
 {-| Subscribe to subscriptions defined in submodule.
 
     subscriptions : Model -> Sub Msg
@@ -314,6 +278,21 @@ subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
 
     else
         mainSubscriptions model
+
+
+{-| Render submodule's view.
+
+    view : Model -> Html msg
+    view model =
+        Html.div []
+            [ Html.text model.message
+            , Glue.view counter Counter.view model
+            ]
+
+-}
+view : Glue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Html msg
+view (Glue rec) v model =
+    Html.map rec.msg <| v <| rec.get model
 
 
 
