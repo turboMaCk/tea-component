@@ -259,15 +259,9 @@ expects the child function to _not_ work with `Cmd`s.
                     |> Glue.updateWith counter increment
 
 -}
-updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> ( model, Cmd msg ) -> ( model, Cmd msg )
-updateModelWith (Glue rec) fc ( model, cmd ) =
-    let
-        subModel =
-            fc <| rec.get model
-    in
-    ( rec.set subModel model
-    , cmd
-    )
+updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
+updateModelWith (Glue rec) fc model =
+    rec.set (fc <| rec.get model) model
 
 
 {-| Subscribe to the `subscriptions` defined in the child module.
