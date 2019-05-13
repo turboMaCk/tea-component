@@ -6,6 +6,7 @@ module Glue exposing
     , subscriptions, subscriptionsWhen
     , view
     , map
+    , updateModelWith
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -143,7 +144,7 @@ init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
     ( fc subModel, Cmd.batch [ cmd, Cmd.map msg subCmd ] )
 
 
-{-| Call submodule update with given message.
+{-| Call child module update with given message.
 Useful for nesting update calls.
 
     -- Child module
@@ -159,7 +160,7 @@ Useful for nesting update calls.
         case msg of
             CounterMsg counterMsg ->
                 ( { model | message = "Counter has changed" }, Cmd.none )
-                    |> Glue.update counter Counter.update counterMsg
+                    |> Glue.update counter updateCounter counterMsg
 
 -}
 update : Glue model subModel msg subMsg -> (a -> subModel -> ( subModel, Cmd subMsg )) -> a -> ( model, Cmd msg ) -> ( model, Cmd msg )
@@ -171,26 +172,28 @@ update (Glue rec) fc msg ( model, cmd ) =
     ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
 
 
-{-| Update child module by given function.
+{-| Call child module update for cases when submodule doesn't produce Cmd.
 
     -- Child module
-    incrementBy : Int -> Counter.Model -> Counter.Model
-    incrementBy num model =
-        model + num
+    updateCounter : Counter.Msg -> Counter.Model -> Counter.Model
+    updateCounter msg model =
+        case msg of
+            Increment ->
+                model + 1
 
     -- Parent module
     update : Msg -> Model -> ( Model, Cmd Msg )
     update msg model =
         case msg of
-            IncrementBy10 ->
-                ( Glue.updateModel counter (incrementBy 10) model
+            CounterMsg counterMsg ->
+                ( Glue.updateModel counter updateCounter counterMsg model
                 , Cmd.none
                 )
 
 -}
-updateModel : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
-updateModel (Glue rec) fc model =
-    rec.set (fc <| rec.get model) model
+updateModel : Glue model subModel msg subMsg -> (a -> subModel -> subModel) -> a -> model -> model
+updateModel (Glue rec) fc msg model =
+    rec.set (fc msg <| rec.get model) model
 
 
 {-| Trigger Cmd in by child's function
@@ -238,6 +241,28 @@ updateWithTrigger (Glue rec) fc ( model, cmd ) =
             fc <| rec.get model
     in
     ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
+
+
+{-| Call child module function to update its model.
+
+    -- Child module
+    incrementBy : Int -> Counter.Model -> Counter.Model
+    incrementBy num model =
+        model + num
+
+    -- Parent module
+    update : Msg -> Model -> ( Model, Cmd Msg )
+    update msg model =
+        case msg of
+            IncrementBy10 ->
+                ( Glue.updateModelWith counter (incrementBy 10) model
+                , Cmd.none
+                )
+
+-}
+updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
+updateModelWith (Glue rec) fc model =
+    rec.set (fc <| rec.get model) model
 
 
 {-| Subscribe to subscriptions defined in submodule.

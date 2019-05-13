@@ -108,7 +108,7 @@ update msg model =
         IncrementSelected ->
             case model.selectedCounter of
                 First ->
-                    ( Glue.updateModel counter Counter.increment model
+                    ( Glue.updateModelWith counter Counter.increment model
                     , Cmd.none
                     )
 
