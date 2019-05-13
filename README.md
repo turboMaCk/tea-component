@@ -31,12 +31,12 @@ If you find yourself synchronizing some state from one place to another than tha
 
 ## tl;dr
 
-This package is a result of my experience with building larger application in Elm where some modules live in isolation from others.
+This package is a result of my experience with building larger single page application in Elm where some modules live in isolation from others.
 The goals and features of this package are:
 
 - Reduce boilerplate in `update` and `init` functions.
-- Reduce [indirection](https://en.wikipedia.org/wiki/Indirection) in glueing between parent and child module.
-- Define glueing logic on consumer level.
+- Reduce code flow indirection in glueing between parent and child module.
+- Define glueing logic in cosumer module.
 - Enforce common interface in `init` `update` `subscribe` and `view`.
 - *You should read the whole README anyway.*
 
@@ -52,33 +52,31 @@ $ elm install turboMaCk/glue
 
 The best place to start is probably to have a look at [examples](https://github.com/turboMaCk/glue/tree/master/examples).
 
-In particular, you can find:
+In particular, you can find examples of:
 
-### [Composing Isolated Elm Apps together using Glue](https://github.com/turboMaCk/glue/tree/master/examples/Counter)
-
-### [Composing Modules with Subscriptions](https://github.com/turboMaCk/glue/tree/master/examples/Subscriptions)
-
-### [Action Bubbling (Sending Actions from Child to Parent)](https://github.com/turboMaCk/glue/tree/master/examples/Bubbling)
+- [Composing Isolated Elm Apps together using Glue](https://github.com/turboMaCk/glue/tree/master/examples/Counter)
+- [Composing Modules with Subscriptions](https://github.com/turboMaCk/glue/tree/master/examples/Subscriptions)
+- [Action Bubbling (Sending Actions from Child to Parent)](https://github.com/turboMaCk/glue/tree/master/examples/Bubbling)
 
 ## Why?
 
-TEA is an awesome way to write Html-based apps in Elm. However, not every application can be defined just in terms of single `Model` and `Msg`.
+TEA is an awesome way to write UI apps in Elm. However, not every application should be defined just in terms of single `Model` and `Msg`.
 Basic separation of [`Browser.element`](https://package.elm-lang.org/packages/elm/browser/latest/Browser#element) is really nice
-but in some cases these functions and `Model` and `Msg` tend to grow pretty quickly in an unmanageable way so you need to start breaking things up.
+but in some cases these functions as well as `Model` and `Msg` types tend to grow pretty quickly in an unmanageable way so you need to start breaking things down.
 
 There are [many ways](https://www.reddit.com/r/elm/comments/5jd2xn/how_to_structure_elm_with_multiple_models/dbkpgbd/)
 you can go about it. In particular the rest of this document will focus just on [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns).
-This technique is useful for isolating parts that really don't need know too much about each other. It helps to reduce number of things particular module is touching and
-limit number of things programmer has to reason about while adding or changing behaviour of such isolated part of system.
-In tea this is especially touching `Msg` type and `update` function.
+This technique is useful for isolating parts that really don't need know too much about each other. It reduces scope of things particular module can operate with
+so the number of things programmer has to reason about while adding or changing behaviour is lower.
+In tea this is especially touching `Msg` and `Model` types and `update` functions for managing the state.
 
 **It's important to understand that `init` `update` `view` and `subscriptions` are all isolated functions connected via `Browser.element`.
 In pure functional programming we're "never" really managing state ourselves but are rather composing functions that takes state as data and produce new version of it (`update` function in TEA).**
 
 Now let's have a look at how we can use [`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map]
-for separation in TEA based app.
-We will nest `init`, `update`, `subscriptions` and `view` one into another and map them from child to parents types.
-Higher level module is then using these units to manage just a subset of its overall state (`Model`).
+for concern separation in Elm application.
+We will nest `init`, `update`, `subscriptions` and `view` one into another and `map` them from child's to parent's types.
+Parent module is then using these units to manage just a subset of its overall state (`Model`).
 Here is how `Model` and `Msg` types of a parent application might look like:
 
 ```elm
@@ -96,7 +94,7 @@ type Msg
     | ...
 ```
 
-Basically, the top-level module only holds the `Model` of a child module (`SubModule`) as a single value, and wraps its `Msg` inside one of its `Msg` constructors (`SubModuleMsg`).
+Basically, the parent module only holds the `Model` of a child module (`SubModule`) as a single value, and wraps its `Msg` inside one of its own `Msg` constructors (`SubModuleMsg`).
 Of course, `init`, `update`, and `subscriptions` also have to know how to work with this part of `Model`, and there you need
 [`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map].
 For instance, this is how simple delegation of `Msg` in `update` might look:
@@ -115,8 +113,21 @@ update msg model =
         ...
 ```
 
-As you can see, this is quite neat even though it requires some boiler-plate code.
-Let's take a look at `view` and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map) in action:
+As you can see, this is quite neat even though it requires some boiler-plate code around deconstruction the pair
+and constructing new one. One can as well utilize `Tuple.mapFirst` and `Tuple.mapSecond` function (Bi functor):
+
+```elm
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        ...
+        SubModuleMsg subMsg ->
+            SubModule.update subMsg model.subModuleModel
+                |> Tuple.mapFirst (\subModel = { model | subModel = subModel })
+                |> Tuple.mapSecond (Cmd.map SubModuleMsg)
+        ...
+```
+Let's take a look at `view` and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map) now:
 
 ```elm
 view : Model -> Html Msg
@@ -132,11 +143,12 @@ You can use [`Cmd.map`][cmd-map] inside `init` as well as
 [`Sub.map`][sub-map] which is fairly similar to
 [`Html.map`][html-map] in `subscriptions` to finish wiring of a child module (`SubModule`).
 
-And this is as far as pure TEA goes. This may possibly be good fit for your needs, and that's OK. Why might you still want to use this package?
+And this is as far as pure TEA goes. This may possibly be good fit for your needs, and that's OK.
+Why might you still want to use this package?
 
-- It helps you to keep `update`, `init`, `view` `subscriptions` clean from wiring logic.
-- It enforces very abstract interface of mapping between functions with just a little implementation overhead.
-- It uses record to keep wiring in single name-space which reduces indirection in interface definition.
+- Ability to define mapping updates of modules and Cmd/Sub mapping in single place (DRY).
+- Simplifies the routine code in functions delegating to child modules
+- Enforces common type interface for functions expesed from modules
 
 ## How?
 
@@ -147,32 +159,30 @@ To simplify glueing of things together, the `Glue` type is introduced by this pa
 This is simply just a name-space for pure functions that defines interface between modules to which you can then refer by single name.
 Other functions within the `Glue` package use the `Glue.Glue` type as proxy to access these functions.
 
+*Note that Glue has essentialy 2 parts. The first one is super simple Lens for model updates.
+The second is writter of for effects (Cmds, Subscriptions).*
+
 ### Glueing independent TEA App
 
 This is how we can construct the `Glue` type for [counter example](https://guide.elm-lang.org/architecture/buttons.html):
 
 ```elm
 import Glue exposing (Glue)
-
--- Counter module
 import Counter
 
-counter : Glue Model Counter.Model Msg Counter.Msg Counter.Msg
+counter : Glue Model Counter.Model Msg Counter.Msg
 counter =
-    Glue.simple
+    Glue.glue
         { msg = CounterMsg
         , get = .counterModel
         , set = \subModel model -> { model | counterModel = subModel }
-        , init = \_ -> Counter.init
-        , update = Counter.update
-        , subscriptions = \_ -> Sub.none
         }
 ```
-All mappings from one type to another (`Model` and `Msg` of parent/child) happen in here.
+All mappings from one type to another (`Model` and `Msg` of parent/child) will happen as defined in this type.
 Definition of this interface depends on API of child module (`Counter` in this case).
 
-With `Glue` defined, we can go and integrate it with the parent.
-Based on the `Glue` type definition, we know we're expecting `Model` and `Msg` to be (at least) as follows:
+With `Glue` defined, we can go and integrate it to rest of the logic.
+Based on the `Glue` type definition, we know we're expecting `Model` and `Msg` to be (at least) as following:
 
 ```elm
 type alias Model =
@@ -182,21 +192,21 @@ type Msg
     = CounterMsg Counter.Msg
 ```
 
-And this is our `init`, `update` and `view` for this example:
+Now we can define init, update and view functions:
 
 ```elm
 
 init : ( Model, Cmd Msg )
 init =
     ( Model, Cmd.none )
-        |> Glue.init counter
+        |> Glue.init counter Counter.init
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         CounterMsg counterMsg ->
             ( model, Cmd.none )
-                |> Glue.update counter counterMsg
+                |> Glue.update counter Counter.update counterMsg
 
 view : Model -> Html Msg
 view =
@@ -204,19 +214,20 @@ view =
 ```
 
 As you can see we're using just `Glue.init`, `Glue.update` and `Glue.view` in these functions to wire child module.
+Also compare to original TEA example we can easily update parent Model an generate additional parent Cmd as well.
 
 ### Wrap Polymorphic Module
 
-A "polymorphic module" is what I call TEA modules that have to be integrated into some other app.
-Such a module has usually API like `update : Config msg -> Model -> ( Model, Cmd msg )`.
-These types of modules often perform [child to parent communication](#action-bubbling)
-but let's leave this detail for now.
-Basically these modules are using `Cmd.map`, `Html.map`, and `Sub.map` internally
-so you don't need to map these types in parent module or `Glue` type definition.
+We're going to be using term "polymorphics" just because of the lack of better name.
+What we really mean is a module which already translates its inner `Msg`
+to some `a` by function provided from parrent module.
 
-To make `Counter` "polymorphic" we can start by adding one extra argument to its `view` function
+Such module can also be generating parrent messages using function passed into its functions
+making it possible to (asynchroniously) notify parent module about certain events.
+
+To make the `Counter` example "polymorphic" we start by adding one extra argument to its `view` function
 and use `Html.map` internally. Then we need to change type annotation of `init` and `update`
-to generic `Cmd msg`. Since both function are using just `Cmd.none`
+to `Cmd msg`. Since both function are using just `Cmd.none`
 we don't need to change anything else but that.
 
 ```elm
@@ -236,29 +247,26 @@ view msg model =
 ```
 
 **Note:**
-*As you can see `view` is now taking extra argument - function from `Msg` to parent's `msg`.
-In practice I usually recommend to use record with functions called `Config msg` which is much more extensible.*
+*As you can see `view` is now taking an extra argument - function from `Msg` to parent's `msg`.
+In practice it's usually a good to use record with functions called `Config msg` which will be much more extensible.*
 
 Now we need to change `Glue` type definition in parent module to reflect the new API of `Counter`:
 
 ```elm
-counter : Glue Model Counter.Model Msg Counter.Msg Msg
+counter : Glue Model Counter.Model Msg Msg
 counter =
     Glue.poly
         { get = .counterModel
         , set = \subModel model -> { model | counterModel = subModel }
-        , init = \_ -> Counter.init
-        , update = Counter.update
-        , subscriptions = \_ -> Sub.none
         }
 ```
 
-As you can see we've switched from `Glue.simple` constructor to `Glue.poly` one.
-Also type annotation of counter has changed. `a` is now `Msg` instead of `Counter.Msg`.
-This is because view now returns `Html Msg` rather then `Html Counter.Msg`.
-This also means we no longer need to supply `msg` since `Glue.poly` doesn't need it (we actually know this should be identity function).
+As you can see we've switched from `Glue.glue` constructor to `Glue.poly` one.
+Also The type signature now contains `Msg` twice as the type produced by the child module
+is the `Msg` of parrent module. In fact `Glue.poly` is just a constructor that defines
+`msg` as `identity`.
 
-We also need to change parent's view since it's using `Counter.view` which is now changed:
+We also need to change parent's view since its API has changed and we need to pass an extra argument now:
 
 ```elm
 view : Model -> Html Msg
@@ -274,7 +282,9 @@ which helps you construct `Cmd Msg` from `Msg`.
 
 **It's important to understand that this might not be the best technique for managing all communication between parent and child.
 You can always expose `Msg` constructor from child (`exposing(Msg(..))`) and match it in parent. Anyway if you need to do such a thing
-you maybe made a mistake in separation design of state. Do these states really need to be separated?**
+you maybe made a mistake in separation design of state. Do these states really need to be separated?
+In most cases communicating with parrent in async fashin makes it easier to reason about data flow in the app
+but there is no really silver bullet. You know the best what best applies for your case.**
 
 Using `Cmd` for communication with upper module works like this:
 
@@ -301,12 +311,13 @@ Using `Cmd` for communication with upper module works like this:
 
 ```
 
-As an example, we can use the (polymorphic) `Counter.elm` again. Let's say we want to
-send some action to the parent whenever its model (count) changes.
+As an example, we can use the (polymorphic) `Counter.elm` again.
+Let's say we want to send some action to the parent whenever its model (count) changes.
 
 For this we need to define a helper function in `Counter.elm`:
 
 ```elm
+-- this uses `GlobalWebIndex/cmd-extra`
 import Cmd.Extra
 
 notify : (Int -> msg) -> Int -> Cmd msg
@@ -326,7 +337,7 @@ init msg =
         model =
             0
     in
-        ( model, notify msg model )
+    ( 0, notify msg model )
 
 
 update : (Int -> msg) -> Msg -> Model -> ( Model, Cmd msg )
@@ -344,8 +355,8 @@ update parentMsg msg model =
 ```
 
 Now both `init` and `update` should send `Cmd` after `Model` is updated.
-This is a breaking change to `Counter`'s API so we need to change its integration as well.
-Since we want to actually use this message and do something with it let's first update
+This is a breaking change to `Counter`'s API (an extra argument) so we need to change its integration as well.
+But since we want to actually use this message and do something with it let's first update
 the parent's `Model` and `Msg`:
 
 ```elm
@@ -359,13 +370,14 @@ type Msg
     | CountChanged Int
 ```
 
-Because we've changed `Model` (added `max : Int`) we should change `init` and `view` of parent to:
+Because we've changed `Model` (added `max : Int`) we should change `init`
+and probably render max value in `view` of parent as well:
 
 ```elm
 init : ( Model, Cmd Msg )
 init =
     ( Model 0, Cmd.none )
-        |> Glue.init counter
+        |> Glue.init counter Counter.init
 
 view : Model -> Html Msg
 view model =
@@ -384,7 +396,7 @@ update msg model =
     case msg of
         CounterMsg counterMsg ->
             ( model , Cmd.none )
-                |> Glue.update counter counterMsg
+                |> Glue.update counter counterMsg (Counter.update CountChanged)
 
         CountChanged num ->
             if num > model.max then
@@ -395,23 +407,6 @@ update msg model =
 
 As you can see we're setting `max` to received int if it's greater than the current value.
 
-Since the parent is ready to handle actions from `Counter` our last step is simply
-to update the `Glue` construction for the new APIs:
-
-```elm
-counter : Glue Model Counter.Model Msg Counter.Msg Msg
-counter =
-    Glue.poly
-        { get = .counter
-        , set = \subModel model -> { model | counter = subModel }
-        , init = \_ -> Counter.init CountChanged
-        , update = Counter.update CountChanged
-        , subscriptions = \_ -> Sub.none
-        }
-```
-
-There we simply pass the parent's `CountChanged` constructor to the `update` and `init` functions of the child.
-
 See this [complete example](https://github.com/turboMaCk/glue/tree/master/examples/Bubbling) to learn more.
 
 ## License
@@ -419,7 +414,3 @@ See this [complete example](https://github.com/turboMaCk/glue/tree/master/exampl
 BSD-3-Clause
 
 Copyright 2017 Marek Fajkus
-
-[cmd-map]: https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map
-[sub-map]: https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map
-[html-map]: https://package.elm-lang.org/packages/elm/html/latest/Html#map
