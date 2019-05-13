@@ -1,4 +1,4 @@
-module Counter.Main exposing (Model, Msg, increment, init, subscriptions, update, view)
+module Counter.Main exposing (Model, Msg, increment, init, update, view)
 
 {-| This show how you can glue really simple statefull submodule.
 
@@ -14,11 +14,10 @@ import Glue exposing (Glue)
 import Html exposing (Html)
 
 
-counter : Glue Model Counter.Model Msg Counter.Msg
+counter : Glue Model Counter.Model Never Never
 counter =
-    Glue.glue
-        { msg = CounterMsg
-        , get = .counter
+    Glue.simple
+        { get = .counter
         , set = \subModel model -> { model | counter = subModel }
         }
 
@@ -35,18 +34,12 @@ increment model =
 -- Main
 
 
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
-
-
 main : Program () Model Msg
 main =
-    Browser.element
-        { init = always init
+    Browser.sandbox
+        { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
         }
 
 
@@ -60,10 +53,10 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( Model "Let's change the counter!", Cmd.none )
-        |> Glue.init counter Counter.init
+    Model "Let's change the counter!"
+        |> Glue.initModel counter Counter.init
 
 
 
@@ -74,12 +67,12 @@ type Msg
     = CounterMsg Counter.Msg
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         CounterMsg counterMsg ->
-            ( { model | message = "Counter has changed!" }, Cmd.none )
-                |> Glue.update counter Counter.update counterMsg
+            { model | message = "Counter has changed!" }
+                |> Glue.updateModel counter Counter.update counterMsg
 
 
 
@@ -90,5 +83,5 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.text model.message
-        , Glue.view counter Counter.view model
+        , Html.map CounterMsg <| Counter.view model.counter
         ]

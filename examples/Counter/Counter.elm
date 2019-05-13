@@ -12,9 +12,9 @@ type alias Model =
     Int
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( 0, Cmd.none )
+    0
 
 
 
@@ -26,18 +26,14 @@ type Msg
     | Decrement
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
-    let
-        newModel =
-            case msg of
-                Increment ->
-                    model + 1
+    case msg of
+        Increment ->
+            model + 1
 
-                Decrement ->
-                    model - 1
-    in
-    ( newModel, Cmd.none )
+        Decrement ->
+            model - 1
 
 
 

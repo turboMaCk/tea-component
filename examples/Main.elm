@@ -23,11 +23,10 @@ import Html.Events exposing (onCheck, onClick)
 import Subscriptions.Main as Subscriptions
 
 
-counter : Glue Model Counter.Model Msg Counter.Msg
+counter : Glue Model Counter.Model Never Never
 counter =
-    Glue.glue
-        { msg = CounterMsg
-        , get = .counterModel
+    Glue.simple
+        { get = .counterModel
         , set = \sm m -> { m | counterModel = sm }
         }
 
@@ -69,8 +68,10 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model First, Cmd.none )
-        |> Glue.init counter Counter.init
+    ( Model First
+        |> Glue.initModel counter Counter.init
+    , Cmd.none
+    )
         |> Glue.init bubbling Bubbling.init
         |> Glue.init subscriptions Subscriptions.init
 
@@ -91,8 +92,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         CounterMsg counterMsg ->
-            ( model, Cmd.none )
-                |> Glue.update counter Counter.update counterMsg
+            ( model
+                |> Glue.updateModel counter Counter.update counterMsg
+            , Cmd.none
+            )
 
         BubblingMsg bubblingMsg ->
             ( model, Cmd.none )
@@ -180,7 +183,7 @@ view model =
             , style "box-shadow" "0px 2px 4px rgba(0,0,0,.2)"
             , style "border-radius" "3px"
             ]
-            [ Glue.view counter Counter.view model
+            [ Html.map CounterMsg <| Counter.view model.counterModel
             , line
             , Glue.view bubbling Bubbling.view model
             , line
@@ -198,7 +201,6 @@ view model =
 subscriptions_ : Model -> Sub Msg
 subscriptions_ =
     (\model -> Sub.none)
-        |> Glue.subscriptions counter Counter.subscriptions
         |> Glue.subscriptions bubbling Bubbling.subscriptions
         |> Glue.subscriptions subscriptions Subscriptions.subscriptions
 

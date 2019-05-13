@@ -2,11 +2,10 @@ module Glue exposing
     ( Glue
     , glue, simple, poly
     , init, initModel
-    , update, updateModel, updateWithTrigger, trigger
+    , update, updateModel, updateWithTrigger, updateModelWith, trigger
     , subscriptions, subscriptionsWhen
     , view
     , map
-    , updateModelWith
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -46,7 +45,7 @@ There are 4 versions of functions used to work with model
 updates and commands between modules each useful in
 a different situation.
 
-@docs update, updateModel, updateWithTrigger, trigger
+@docs update, updateModel, updateWithTrigger, updateModelWith, trigger
 
 
 # Subscriptions
@@ -101,12 +100,20 @@ glue rec =
 
 {-| Simple [`Glue`](#Glue) constructor
 for modules that don't produce Cmds.
+
+**Note that with this constructor you won't
+be able to use some function provided
+within this model.**
+Most importantly you won't be able to use
+[`view`](#view) but will need to use
+`Html.map` instead.
+
 -}
 simple :
     { get : model -> subModel
     , set : subModel -> model -> model
     }
-    -> Glue model subModel msg Never
+    -> Glue model subModel Never Never
 simple rec =
     Glue
         { msg = Basics.never
@@ -219,13 +226,11 @@ update (Glue rec) fc msg ( model, cmd ) =
                 model + 1
 
     -- Parent module
-    update : Msg -> Model -> ( Model, Cmd Msg )
+    update : Msg -> Model -> Model
     update msg model =
         case msg of
             CounterMsg counterMsg ->
-                ( Glue.updateModel counter updateCounter counterMsg model
-                , Cmd.none
-                )
+                Glue.updateModel counter updateCounter counterMsg model
 
 -}
 updateModel : Glue model subModel msg subMsg -> (a -> subModel -> subModel) -> a -> model -> model
@@ -288,13 +293,11 @@ updateWithTrigger (Glue rec) fc ( model, cmd ) =
         model + num
 
     -- Parent module
-    update : Msg -> Model -> ( Model, Cmd Msg )
+    update : Msg -> Model -> Model
     update msg model =
         case msg of
             IncrementBy10 ->
-                ( Glue.updateModelWith counter (incrementBy 10) model
-                , Cmd.none
-                )
+                Glue.updateModelWith counter (incrementBy 10) model
 
 -}
 updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
