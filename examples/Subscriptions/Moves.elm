@@ -1,6 +1,6 @@
 module Subscriptions.Moves exposing (Model, Msg, Position, init, positionDecoder, subscriptions, update, view)
 
-{-| This demonstrates how subscription composition works with glueing.
+{-| This demonstrates how subscription composition works with gluing.
 
 Please be aware that this example was made just for purposes of this demonstration.
 
@@ -16,7 +16,7 @@ import Json.Decode as Decode exposing (Decoder)
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Browser.Events.onMouseMove <| Decode.map Moved positionDecoder
 
 
@@ -53,7 +53,7 @@ type Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg _ =
     case msg of
         Moved position ->
             ( position

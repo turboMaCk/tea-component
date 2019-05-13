@@ -1,8 +1,8 @@
 module Counter.Main exposing (Model, Msg, increment, init, update, view)
 
-{-| This show how you can glue really simple statefull submodule.
+{-| This show how you can glue really simple stateful submodule.
 
-This example is quite artificial demostration of what is possible to do with `Glue`.
+This example is quite artificial demonstration of what is possible to do with `Glue`.
 In real world it probably doesn't make sense to use similar approach
 for something as simple as counter and text which are interested in same action.
 

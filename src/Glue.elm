@@ -9,19 +9,19 @@ module Glue exposing
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
-You can think about this as about lightweight abstraction built around `(model, Cmd msg)` or
-`(model, Sub msg)` pairs repetition of in code for composing `init` `update` `view` and `subscribe` using
+You can think of this as of lightweight abstraction built around `(model, Cmd msg)` or
+`(model, Sub msg)` pairs repetition in the code for composing `init` `update` `view` and `subscribe` using
 [`Cmd.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd#map),
 [`Sub.map`](https://package.elm-lang.org/packages/elm/core/latest/Platform-Sub#map)
 and [`Html.map`](https://package.elm-lang.org/packages/elm/html/latest/Html#map).
 
-It's recommended to avoid usage of pattern with statefull modules unless there is clear benefit to choose it.
+It's recommended to avoid usage of pattern with stateful modules unless there is clear benefit to choose it.
 In cases where one would like to use `Cmd.map` pattern anyway though,
-Glue can be used to avoid repetable patterns for mapping the msg types
+Glue can be used to avoid repeatable patterns for mapping the msg types
 and updating models.
 
 
-# Datatype
+# Data type
 
 @docs Glue
 
@@ -102,7 +102,7 @@ glue rec =
 for modules that don't produce Cmds.
 
 **Note that with this constructor you won't
-be able to use some function provided
+be able to use some functions provided
 within this model.**
 
 -}
@@ -119,7 +119,7 @@ simple rec =
         }
 
 
-{-| Sepcialized version of constructor.
+{-| Specialized version of constructor.
 Useful when module's api has generic `msg` type
 and maps command internally.
 
@@ -235,7 +235,7 @@ updateModel (Glue rec) fc msg model =
     rec.set (fc msg <| rec.get model) model
 
 
-{-| Trigger Cmd in by child's function
+{-| Trigger Cmd in child's function
 
 _Commands are async. Therefore trigger doesn't make any update directly.
 Use [`updateModel`](#updateModel) over `trigger` when you can._
@@ -259,7 +259,7 @@ trigger (Glue rec) fc ( model, cmd ) =
     ( model, Cmd.batch [ Cmd.map rec.msg <| fc <| rec.get model, cmd ] )
 
 
-{-| Update child module using functin that also produces `Cmd`.
+{-| Update child module using function that also produces `Cmd`.
 
     increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
     increment model =
