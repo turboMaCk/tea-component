@@ -1,7 +1,7 @@
 module Glue exposing
     ( Glue
-    , glue, poly
-    , init
+    , glue, simple, poly
+    , init, initModel
     , update, updateModel, updateWithTrigger, trigger
     , subscriptions, subscriptionsWhen
     , view
@@ -29,7 +29,7 @@ and updating models.
 
 # Constructors
 
-@docs glue, poly
+@docs glue, simple, poly
 
 
 # Init
@@ -37,7 +37,7 @@ and updating models.
 Designed for chaining initialization of child modules
 from parent init function.
 
-@docs init
+@docs init, initModel
 
 
 # Updates
@@ -87,7 +87,7 @@ type Glue model subModel msg subMsg
         }
 
 
-{-| Simple [`Glue`](#Glue) constructor.
+{-| General [`Glue`](#Glue) constructor.
 -}
 glue :
     { msg : subMsg -> msg
@@ -97,6 +97,22 @@ glue :
     -> Glue model subModel msg subMsg
 glue rec =
     Glue rec
+
+
+{-| Simple [`Glue`](#Glue) constructor
+for modules that don't produce Cmds.
+-}
+simple :
+    { get : model -> subModel
+    , set : subModel -> model -> model
+    }
+    -> Glue model subModel msg Never
+simple rec =
+    Glue
+        { msg = Basics.never
+        , get = rec.get
+        , set = rec.set
+        }
 
 
 {-| Sepcialized version of constructor.
@@ -142,6 +158,27 @@ poly rec =
 init : Glue model subModel msg subMsg -> ( subModel, Cmd subMsg ) -> ( subModel -> a, Cmd msg ) -> ( a, Cmd msg )
 init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
     ( fc subModel, Cmd.batch [ cmd, Cmd.map msg subCmd ] )
+
+
+{-| Initialize child module in parent for cases when init
+doesn't produce Cmd.
+
+    type alias Model =
+        { message : String
+        , firstCounterModel : Counter.Model
+        , secondCounterModel : Counter.Model
+        }
+
+    init : Model
+    init =
+        Model ""
+            |> Glue.initModel firstCounter Counter.init
+            |> Glue.initModel secondCounter Counter.init
+
+-}
+initModel : Glue model subModel msg subMsg -> subModel -> (subModel -> a) -> a
+initModel (Glue { msg }) subModel fc =
+    fc subModel
 
 
 {-| Call child module update with given message.
