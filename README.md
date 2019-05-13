@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/turboMaCk/glue.svg?branch=master)](https://travis-ci.org/turboMaCk/glue)
 
 This package helps you reduce boilerplate when composing TEA-based (The Elm Architecture) applications using
-[`Cmd.map`][cmd-map], [`Sub.map`][sub-map] and [`Html.map`][html-map].
+`Cmd.map`, `Sub.map` and `Html.map`.
 `Glue` is just a thin abstraction over these functions so it's easy to plug it in and out.
 It's fair to say that `Glue` is an alternative to [elm-parts](http://package.elm-lang.org/packages/debois/elm-parts/latest),
 but uses a different approach (no better or worse) for composing isolated pieces/modules together.
