@@ -216,6 +216,10 @@ view =
 As you can see we're using just `Glue.init`, `Glue.update` and `Glue.view` in these functions to wire child module.
 Also compare to original TEA example we can easily update parent Model an generate additional parent Cmd as well.
 
+> This version of counter is using `Browser.element` type of interface as oppose to
+> `Browser.sandbox`. It is possible to use `Glue` with `sandbox` type of interface.
+> See the [counter example](examples/Counter) and `Glue.simple` constructor.
+
 ### Wrap Polymorphic Module
 
 We're going to be using term "polymorphics" just because of the lack of better name.
