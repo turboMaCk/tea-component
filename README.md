@@ -159,8 +159,8 @@ To simplify glueing of things together, the `Glue` type is introduced by this pa
 This is simply just a name-space for pure functions that defines interface between modules to which you can then refer by single name.
 Other functions within the `Glue` package use the `Glue.Glue` type as proxy to access these functions.
 
-*Note that Glue has essentialy 2 parts. The first one is super simple Lens for model updates.
-The second is writter of for effects (Cmds, Subscriptions).*
+> Note that Glue has essentialy 2 parts. The first one is super simple Lens for model updates.
+> The second is writter of for effects (Cmds, Subscriptions).
 
 ### Glueing independent TEA App
 
@@ -250,9 +250,8 @@ view msg model =
             ]
 ```
 
-**Note:**
-*As you can see `view` is now taking an extra argument - function from `Msg` to parent's `msg`.
-In practice it's usually a good to use record with functions called `Config msg` which will be much more extensible.*
+> As you can see `view` is now taking an extra argument - function from `Msg` to parent's `msg`.
+> In practice it's usually a good to use record with functions called `Config msg` which will be much more extensible.*
 
 Now we need to change `Glue` type definition in parent module to reflect the new API of `Counter`:
 
