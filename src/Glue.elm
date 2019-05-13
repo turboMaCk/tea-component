@@ -2,7 +2,7 @@ module Glue exposing
     ( Glue
     , simple, poly, glue
     , init
-    , update, updateModel
+    , update, updateModel, updateWithTrigger
     , subscriptions, subscriptionsWhen
     , view, viewSimple
     , map
@@ -40,7 +40,7 @@ Designed for chaining initialization of child modules from parent `init` functio
 
 # Updates
 
-@docs update, updateModel
+@docs update, updateModel, updateWithTrigger
 
 
 # Subscriptions
@@ -163,10 +163,6 @@ init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
 {-| Call the child module `update` function with a given message. Useful for
 nesting update calls. This function expects the child `update` to work with `Cmd`s.
 
-Note you can use different functions than the child's main `update`. For example
-the child module might have an `updateForRouteChange` function specialized
-for a specific parent module situation - you can plug it in here too!
-
     -- Child module
     updateCounter : Counter.Msg -> Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
     updateCounter msg model =
@@ -222,6 +218,30 @@ for a specific parent module situation - you can plug it in here too!
 updateModel : Glue model subModel msg subMsg -> (a -> subModel -> subModel) -> a -> model -> model
 updateModel (Glue rec) fc msg model =
     rec.set (fc msg <| rec.get model) model
+
+
+{-| Updates the child module with a function other than `update`. This function
+expects the child function to work with `Cmd`s.
+
+    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
+    increment model =
+        ( model + 1, Cmd.none )
+
+    update : Msg -> Model -> ( Model, Cmd Msg )
+    update msg model =
+        case msg of
+            IncrementCounter ->
+                ( model, Cmd.none )
+                    |> Glue.updateWithTrigger counter increment
+
+-}
+updateWithTrigger : Glue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+updateWithTrigger (Glue rec) fc ( model, cmd ) =
+    let
+        ( subModel, subCmd ) =
+            fc <| rec.get model
+    in
+    ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
 
 
 {-| Subscribe to the `subscriptions` defined in the child module.
