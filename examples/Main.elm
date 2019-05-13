@@ -183,7 +183,7 @@ view model =
             , style "box-shadow" "0px 2px 4px rgba(0,0,0,.2)"
             , style "border-radius" "3px"
             ]
-            [ Html.map CounterMsg <| Counter.view model.counterModel
+            [ Glue.viewSimple counter Counter.view CounterMsg model
             , line
             , Glue.view bubbling Bubbling.view model
             , line

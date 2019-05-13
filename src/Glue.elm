@@ -4,7 +4,7 @@ module Glue exposing
     , init, initModel
     , update, updateModel, updateWithTrigger, updateModelWith, trigger
     , subscriptions, subscriptionsWhen
-    , view
+    , view, viewSimple
     , map
     )
 
@@ -55,7 +55,7 @@ a different situation.
 
 # View
 
-@docs view
+@docs view, viewSimple
 
 
 # Helpers
@@ -104,9 +104,6 @@ for modules that don't produce Cmds.
 **Note that with this constructor you won't
 be able to use some function provided
 within this model.**
-Most importantly you won't be able to use
-[`view`](#view) but will need to use
-`Html.map` instead.
 
 -}
 simple :
@@ -358,6 +355,15 @@ subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
 view : Glue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Html msg
 view (Glue rec) v model =
     Html.map rec.msg <| v <| rec.get model
+
+
+{-| View `Glue` constructed with [`simple`](#simple) constructor
+Because Msg is not part of the glue definition (Never type) it needs
+to be passed in
+-}
+viewSimple : Glue model subModel Never Never -> (subModel -> Html subMsg) -> (subMsg -> msg) -> model -> Html msg
+viewSimple (Glue rec) v msg model =
+    Html.map msg <| v <| rec.get model
 
 
 

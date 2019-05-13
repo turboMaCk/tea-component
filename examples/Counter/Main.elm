@@ -83,5 +83,5 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.text model.message
-        , Html.map CounterMsg <| Counter.view model.counter
+        , Glue.viewSimple counter Counter.view CounterMsg model
         ]
