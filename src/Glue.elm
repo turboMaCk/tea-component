@@ -2,7 +2,7 @@ module Glue exposing
     ( Glue
     , simple, poly, glue
     , init
-    , update, updateModel, updateWithTrigger
+    , update, updateModel, updateWith, updateModelWith
     , subscriptions, subscriptionsWhen
     , view, viewSimple
     , map
@@ -40,7 +40,7 @@ Designed for chaining initialization of child modules from parent `init` functio
 
 # Updates
 
-@docs update, updateModel, updateWithTrigger
+@docs update, updateModel, updateWith, updateModelWith
 
 
 # Subscriptions
@@ -232,16 +232,42 @@ expects the child function to work with `Cmd`s.
         case msg of
             IncrementCounter ->
                 ( model, Cmd.none )
-                    |> Glue.updateWithTrigger counter increment
+                    |> Glue.updateWith counter increment
 
 -}
-updateWithTrigger : Glue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
-updateWithTrigger (Glue rec) fc ( model, cmd ) =
+updateWith : Glue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+updateWith (Glue rec) fc ( model, cmd ) =
     let
         ( subModel, subCmd ) =
             fc <| rec.get model
     in
     ( rec.set subModel model, Cmd.batch [ Cmd.map rec.msg subCmd, cmd ] )
+
+
+{-| Updates the child module with a function other than `update`. This function
+expects the child function to _not_ work with `Cmd`s.
+
+    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
+    increment model =
+        ( model + 1, Cmd.none )
+
+    update : Msg -> Model -> ( Model, Cmd Msg )
+    update msg model =
+        case msg of
+            IncrementCounter ->
+                ( model, Cmd.none )
+                    |> Glue.updateWith counter increment
+
+-}
+updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+updateModelWith (Glue rec) fc ( model, cmd ) =
+    let
+        subModel =
+            fc <| rec.get model
+    in
+    ( rec.set subModel model
+    , cmd
+    )
 
 
 {-| Subscribe to the `subscriptions` defined in the child module.
