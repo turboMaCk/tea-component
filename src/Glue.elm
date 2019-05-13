@@ -357,9 +357,11 @@ view (Glue rec) v model =
     Html.map rec.msg <| v <| rec.get model
 
 
-{-| View `Glue` constructed with [`simple`](#simple) constructor
+{-| View `Glue` constructed with [`simple`](#simple) constructor.
+
 Because Msg is not part of the glue definition (Never type) it needs
-to be passed in
+to be passed in as a argument
+
 -}
 viewSimple : Glue model subModel Never Never -> (subModel -> Html subMsg) -> (subMsg -> msg) -> model -> Html msg
 viewSimple (Glue rec) v msg model =
