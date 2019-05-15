@@ -2,11 +2,10 @@ module Glue exposing
     ( Glue
     , simple, poly, glue
     , init
-    , update, updateModel, updateWith, updateModelWith
+    , update, updateModel, updateWith, updateModelWith, trigger
     , subscriptions, subscriptionsWhen
     , view, viewSimple
     , map
-    , trigger
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -248,16 +247,18 @@ updateWith (Glue rec) fc ( model, cmd ) =
 {-| Updates the child module with a function other than `update`. This function
 expects the child function to _not_ work with `Cmd`s.
 
-    increment : Counter.Model -> ( Counter.Model, Cmd Counter.Msg )
+    increment : Counter.Model -> Counter.Model
     increment model =
-        ( model + 1, Cmd.none )
+        model + 1
 
     update : Msg -> Model -> ( Model, Cmd Msg )
     update msg model =
         case msg of
             IncrementCounter ->
-                ( model, Cmd.none )
-                    |> Glue.updateWith counter increment
+                ( model
+                    |> Glue.updateModelWith counter increment
+                , Cmd.none
+                )
 
 -}
 updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
