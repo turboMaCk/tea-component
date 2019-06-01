@@ -235,7 +235,7 @@ we can easily update parent Model an generate additional parent Cmd as well.
 
 > This version of counter is using `Browser.element` type of interface as opposed
 > to `Browser.sandbox`. It is possible to use `Glue` with `sandbox` type of interface.
-> See the [counter example](examples/Counter) and the `Glue.simple` constructor.
+> See the [counter example](https://github.com/turboMaCk/glue/tree/master/examples/Counter) and the `Glue.simple` constructor.
 
 ### Wrap Polymorphic Module
 
