@@ -5,7 +5,7 @@ module Glue exposing
     , update, updateModel, updateWith, updateModelWith, trigger
     , subscriptions, subscriptionsWhen
     , view, viewSimple
-    , map
+    , combine, map
     )
 
 {-| Composing Elm applications from smaller isolated parts (modules).
@@ -53,9 +53,9 @@ Designed for chaining initialization of child modules from parent `init` functio
 @docs view, viewSimple
 
 
-# Helpers
+# Other
 
-@docs map
+@docs map combine
 
 -}
 
@@ -365,3 +365,17 @@ packed in `(model, Cmd msg)`.
 map : (subMsg -> msg) -> ( subModel, Cmd subMsg ) -> ( subModel, Cmd msg )
 map constructor pair =
     Tuple.mapSecond (Cmd.map constructor) pair
+
+
+{-| Combine two glues into a single glue.
+-}
+combine :
+    Glue model subModel1 msg subMsg1
+    -> Glue subModel1 subModel2 subMsg1 subMsg2
+    -> Glue model subModel2 msg subMsg2
+combine (Glue inner) (Glue inner2) =
+    Glue
+        { msg = inner.msg << inner2.msg
+        , get = inner2.get << inner.get
+        , set = \s m -> inner.set (inner2.set s (inner.get m)) m
+        }
