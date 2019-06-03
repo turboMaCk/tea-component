@@ -1,10 +1,12 @@
 module Glue.Lazy exposing (LazyGlue)
 
 import Glue exposing (Glue)
+import Glue.Internal
+import Html exposing (Html)
 
 
 type alias LazyGlue model subModel msg subMsg =
-    Glue model (Maybe subModel) msg subMsg
+    Glue.Internal.Glue model (Maybe subModel) msg subMsg
 
 
 initLater : Glue model subModel msg subMsg -> ( Maybe subModel -> a, Cmd msg ) -> ( a, Cmd msg )
@@ -20,6 +22,26 @@ forceInit glue pair =
 forceInitModel : LazyGlue model subModel msg subMsg -> subModel -> model -> model
 forceInitModel glue val =
     Glue.updateModelWith glue (\_ -> Just val)
+
+
+ensure : LazyGlue model subModel msg subMsg -> (() -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
+ensure ((Glue.Internal.Glue rec) as glue) f ( model, cmd ) =
+    case rec.get model of
+        Just v ->
+            ( model, cmd )
+
+        Nothing ->
+            forceInit glue (f ()) ( model, cmd )
+
+
+ensureModel : LazyGlue model subModel msg subMsg -> (() -> subModel) -> model -> model
+ensureModel ((Glue.Internal.Glue rec) as glue) f model =
+    case rec.get model of
+        Just v ->
+            model
+
+        Nothing ->
+            forceInitModel glue (f ()) model
 
 
 update : LazyGlue model subModel msg subMsg -> (a -> subModel -> ( subModel, Cmd subMsg )) -> a -> ( model, Cmd msg ) -> ( model, Cmd msg )
@@ -57,6 +79,11 @@ subscriptionsWhen : (model -> Bool) -> LazyGlue model subModel msg subMsg -> (su
 subscriptionsWhen predicate glue f =
     (\m -> Maybe.withDefault Sub.none (Maybe.map f m))
         |> Glue.subscriptionsWhen predicate glue
+
+
+view : LazyGlue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Maybe (Html msg)
+view (Glue.Internal.Glue rec) v model =
+    Maybe.map (Html.map rec.msg << v) <| rec.get model
 
 
 patch : (subModel -> ( subModel, Cmd subCmd )) -> (Maybe subModel -> ( Maybe subModel, Cmd subCmd ))

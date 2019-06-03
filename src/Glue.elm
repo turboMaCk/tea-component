@@ -59,6 +59,7 @@ Designed for chaining initialization of child modules from parent `init` functio
 
 -}
 
+import Glue.Internal
 import Html exposing (Html)
 
 
@@ -73,12 +74,8 @@ Every glue layer is parametrized over:
   - `subMsg` is `Msg` of child
 
 -}
-type Glue model subModel msg subMsg
-    = Glue
-        { msg : subMsg -> msg
-        , get : model -> subModel
-        , set : subModel -> model -> model
-        }
+type alias Glue model subModel msg subMsg =
+    Glue.Internal.Glue model subModel msg subMsg
 
 
 {-| General [`Glue`](#Glue) constructor.
@@ -90,7 +87,7 @@ glue :
     }
     -> Glue model subModel msg subMsg
 glue rec =
-    Glue rec
+    Glue.Internal.Glue rec
 
 
 {-| Simple [`Glue`](#Glue) constructor for modules that don't produce Cmds.
@@ -105,7 +102,7 @@ simple :
     }
     -> Glue model subModel Never Never
 simple rec =
-    Glue
+    Glue.Internal.Glue
         { msg = Basics.never
         , get = rec.get
         , set = rec.set
@@ -124,7 +121,7 @@ poly :
     }
     -> Glue model subModel msg msg
 poly rec =
-    Glue
+    Glue.Internal.Glue
         { msg = identity
         , get = rec.get
         , set = rec.set
@@ -151,11 +148,11 @@ poly rec =
 
 -}
 init : Glue model subModel msg subMsg -> ( subModel, Cmd subMsg ) -> ( subModel -> a, Cmd msg ) -> ( a, Cmd msg )
-init (Glue { msg }) ( subModel, subCmd ) ( fc, cmd ) =
+init (Glue.Internal.Glue rec) ( subModel, subCmd ) ( fc, cmd ) =
     ( fc subModel
     , Cmd.batch
         [ cmd
-        , Cmd.map msg subCmd
+        , Cmd.map rec.msg subCmd
         ]
     )
 
@@ -180,7 +177,7 @@ nesting update calls. This function expects the child `update` to work with `Cmd
 
 -}
 update : Glue model subModel msg subMsg -> (a -> subModel -> ( subModel, Cmd subMsg )) -> a -> ( model, Cmd msg ) -> ( model, Cmd msg )
-update (Glue rec) fc msg ( model, cmd ) =
+update (Glue.Internal.Glue rec) fc msg ( model, cmd ) =
     let
         ( subModel, subCmd ) =
             fc msg <| rec.get model
@@ -216,7 +213,7 @@ for a specific parent module situation - you can plug it in here too!
 
 -}
 updateModel : Glue model subModel msg subMsg -> (a -> subModel -> subModel) -> a -> model -> model
-updateModel (Glue rec) fc msg model =
+updateModel (Glue.Internal.Glue rec) fc msg model =
     rec.set (fc msg <| rec.get model) model
 
 
@@ -236,7 +233,7 @@ expects the child function to work with `Cmd`s.
 
 -}
 updateWith : Glue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
-updateWith (Glue rec) fc ( model, cmd ) =
+updateWith (Glue.Internal.Glue rec) fc ( model, cmd ) =
     let
         ( subModel, subCmd ) =
             fc <| rec.get model
@@ -262,7 +259,7 @@ expects the child function to _not_ work with `Cmd`s.
 
 -}
 updateModelWith : Glue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
-updateModelWith (Glue rec) fc model =
+updateModelWith (Glue.Internal.Glue rec) fc model =
     rec.set (fc <| rec.get model) model
 
 
@@ -285,7 +282,7 @@ Use [`updateModel`](#updateModel) over `trigger` when you can._
 
 -}
 trigger : Glue model subModel msg subMsg -> (subModel -> Cmd subMsg) -> ( model, Cmd msg ) -> ( model, Cmd msg )
-trigger (Glue rec) fc ( model, cmd ) =
+trigger (Glue.Internal.Glue rec) fc ( model, cmd ) =
     ( model, Cmd.batch [ Cmd.map rec.msg <| fc <| rec.get model, cmd ] )
 
 
@@ -299,11 +296,11 @@ trigger (Glue rec) fc ( model, cmd ) =
 
 -}
 subscriptions : Glue model subModel msg subMsg -> (subModel -> Sub subMsg) -> (model -> Sub msg) -> (model -> Sub msg)
-subscriptions (Glue { msg, get }) subscriptions_ mainSubscriptions =
+subscriptions (Glue.Internal.Glue rec) subscriptions_ mainSubscriptions =
     \model ->
         Sub.batch
             [ mainSubscriptions model
-            , Sub.map msg <| subscriptions_ <| get model
+            , Sub.map rec.msg <| subscriptions_ <| rec.get model
             ]
 
 
@@ -340,7 +337,7 @@ subscriptionsWhen cond g subscriptions_ mainSubscriptions model =
 
 -}
 view : Glue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Html msg
-view (Glue rec) v model =
+view (Glue.Internal.Glue rec) v model =
     Html.map rec.msg <| v <| rec.get model
 
 
@@ -351,7 +348,7 @@ to be passed in as a argument.
 
 -}
 viewSimple : Glue model subModel Never Never -> (subModel -> Html subMsg) -> (subMsg -> msg) -> model -> Html msg
-viewSimple (Glue rec) v msg model =
+viewSimple (Glue.Internal.Glue rec) v msg model =
     Html.map msg <| v <| rec.get model
 
 
@@ -373,8 +370,8 @@ combine :
     Glue model subModel1 msg subMsg1
     -> Glue subModel1 subModel2 subMsg1 subMsg2
     -> Glue model subModel2 msg subMsg2
-combine (Glue inner) (Glue inner2) =
-    Glue
+combine (Glue.Internal.Glue inner) (Glue.Internal.Glue inner2) =
+    Glue.Internal.Glue
         { msg = inner.msg << inner2.msg
         , get = inner2.get << inner.get
         , set = \s m -> inner.set (inner2.set s (inner.get m)) m
