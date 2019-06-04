@@ -6,8 +6,8 @@ module Glue.Lazy exposing
     , view
     )
 
-{-| In some case it makes sense to postpone initialization
-of some module after some action like for instance a router change.
+{-| In some cases, it makes sense to postpone initialization
+of some module.
 
 Such part of state can expressed using `Maybe` type like
 
@@ -22,7 +22,7 @@ or for instance using sum type like
         = About About.Model
         | UserSettings UserSettings.Model
 
-In such case though programmer is responsible for manually initializing
+In such cases though, the programmer is responsible for manually initializing
 the module at the right time.
 
 @docs LazyGlue
