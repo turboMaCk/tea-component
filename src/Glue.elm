@@ -55,7 +55,7 @@ Designed for chaining initialization of child modules from parent `init` functio
 
 # Other
 
-@docs map combine
+@docs map, combine
 
 -}
 

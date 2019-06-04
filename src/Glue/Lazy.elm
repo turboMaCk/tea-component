@@ -110,7 +110,7 @@ ensureModel ((Glue.Internal.Glue rec) as glue) f model =
 {-| Like `Glue.update` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
 In cases where update should be forcing intialization use this in
-conjuction with `ensure`[#ensure]
+conjuction with [`ensure`](#ensure)
 -}
 update : LazyGlue model subModel msg subMsg -> (a -> subModel -> ( subModel, Cmd subMsg )) -> a -> ( model, Cmd msg ) -> ( model, Cmd msg )
 update glue f =
@@ -120,7 +120,7 @@ update glue f =
 {-| Like `Glue.updateModel` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
 In cases where update should be forcing intialization use this in
-conjuction with `ensureModel`[#ensureModel]
+conjuction with [`ensureModel`](#ensureModel)
 -}
 updateModel : LazyGlue model subModel msg subMsg -> (a -> subModel -> subModel) -> a -> model -> model
 updateModel glue f =
@@ -130,7 +130,7 @@ updateModel glue f =
 {-| Like `Glue.updateWith` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
 In cases where update should be forcing intialization use this in
-conjuction with `ensure`[#ensure]
+conjuction with [`ensure`](#ensure)
 -}
 updateWith : LazyGlue model subModel msg subMsg -> (subModel -> ( subModel, Cmd subMsg )) -> ( model, Cmd msg ) -> ( model, Cmd msg )
 updateWith glue f =
@@ -140,7 +140,7 @@ updateWith glue f =
 {-| Like `Glue.updateModelWith` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
 In cases where update should be forcing intialization use this in
-conjuction with `ensureModel`[#ensureModel]
+conjuction with [`ensureModel`](#ensureModel)
 -}
 updateModelWith : LazyGlue model subModel msg subMsg -> (subModel -> subModel) -> model -> model
 updateModelWith glue f =
@@ -150,7 +150,7 @@ updateModelWith glue f =
 {-| Like `Glue.triger` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
 In cases where update should be forcing intialization use this in
-conjuction with `ensure`[#ensure]
+conjuction with [`ensure`](#ensure)
 -}
 trigger : LazyGlue model subModel msg subMsg -> (subModel -> Cmd subMsg) -> ( model, Cmd msg ) -> ( model, Cmd msg )
 trigger glue fc =
@@ -159,8 +159,6 @@ trigger glue fc =
 
 {-| Like `Glue.subscriptions` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
-In cases where update should be forcing intialization use this in
-conjuction with `ensure`[#ensure]
 -}
 subscriptions : LazyGlue model subModel msg subMsg -> (subModel -> Sub subMsg) -> (model -> Sub msg) -> (model -> Sub msg)
 subscriptions glue f =
@@ -170,8 +168,6 @@ subscriptions glue f =
 
 {-| Like `Glue.subscriptionsWhen` but for `LazyGlue` variant.
 Update is called only when there model is already initialized.
-In cases where update should be forcing intialization use this in
-conjuction with `ensure`[#ensure]
 -}
 subscriptionsWhen : (model -> Bool) -> LazyGlue model subModel msg subMsg -> (subModel -> Sub subMsg) -> (model -> Sub msg) -> (model -> Sub msg)
 subscriptionsWhen predicate glue f =
@@ -186,6 +182,10 @@ with uninitialized Model.
 view : LazyGlue model subModel msg subMsg -> (subModel -> Html subMsg) -> model -> Maybe (Html msg)
 view (Glue.Internal.Glue rec) v model =
     Maybe.map (Html.map rec.msg << v) <| rec.get model
+
+
+
+-- HELPERS
 
 
 patch : (subModel -> ( subModel, Cmd subCmd )) -> (Maybe subModel -> ( Maybe subModel, Cmd subCmd ))
