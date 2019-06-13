@@ -62,7 +62,7 @@ type alias LazyGlue model subModel msg subMsg =
 {-| Compatible with Glue.init style initialization but assigns `Nothing` to the part of model that
 should be initalized later. This function is useful in cases using record with maybes.
 -}
-initLater : Glue model subModel msg subMsg -> ( Maybe subModel -> a, Cmd msg ) -> ( a, Cmd msg )
+initLater : LazyGlue model subModel msg subMsg -> ( Maybe subModel -> a, Cmd msg ) -> ( a, Cmd msg )
 initLater _ ( f, cmd ) =
     ( f Nothing, cmd )
 
