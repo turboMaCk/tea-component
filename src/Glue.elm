@@ -384,9 +384,9 @@ This can be for instance used for chaining updates
 of model.
 
     chainUpdates model =
-      (model, Cmd.none)
-        |> Glue.updateWith Glue.id f
-        |> Glue.updateWith Glue.id g
+        ( model, Cmd.none )
+            |> Glue.updateWith Glue.id f
+            |> Glue.updateWith Glue.id g
 
 -}
 id : Glue model model msg msg
