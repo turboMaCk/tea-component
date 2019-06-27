@@ -378,7 +378,16 @@ combine (Glue.Internal.Glue inner) (Glue.Internal.Glue inner2) =
         }
 
 
-{-| Identity Glue
+{-| Identity Glue.
+
+This can be for instance used for chaining updates
+of model.
+
+    chainUpdates model =
+      (model, Cmd.none)
+        |> Glue.updateWith Glue.id f
+        |> Glue.updateWith Glue.id g
+
 -}
 id : Glue model model msg msg
 id =
