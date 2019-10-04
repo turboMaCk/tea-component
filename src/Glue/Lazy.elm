@@ -67,6 +67,14 @@ initLater _ ( f, cmd ) =
     ( f Nothing, cmd )
 
 
+{-| Compatible with Glue.init style initialization like `initLater` but for cases when
+you need to initialize with `Just model` right away in init function.
+-}
+initNow : LazyGlue model subModel msg subMsg -> ( subModel, Cmd subMsg ) -> ( Maybe subModel -> a, Cmd msg ) -> ( a, Cmd msg )
+initNow (Glue.Internal.Glue { msg }) ( m, c ) ( f, cmd ) =
+    ( f <| Just m, Cmd.batch [ cmd, Cmd.map msg c ] )
+
+
 {-| Force intialization of module. If model state already exists in the form of `Just model`
 this value is overwrite nontherless
 -}
