@@ -1,6 +1,6 @@
 module Glue.Lazy exposing
     ( LazyGlue
-    , initLater, forceInit, forceInitModel, ensure, ensureModel
+    , initLater, initNow, forceInit, forceInitModel, ensure, ensureModel
     , update, updateModel, updateWith, updateModelWith, trigger
     , subscriptions, subscriptionsWhen
     , view
@@ -30,7 +30,7 @@ the module at the right time.
 
 ## Initialization
 
-@docs initLater, forceInit, forceInitModel, ensure, ensureModel
+@docs initLater, initNow, forceInit, forceInitModel, ensure, ensureModel
 
 
 ## Updates
@@ -67,7 +67,7 @@ initLater _ ( f, cmd ) =
     ( f Nothing, cmd )
 
 
-{-| Compatible with Glue.init style initialization like `initLater` but for cases when
+{-| Similar to [`initLater`](#initLater) but for cases when
 you need to initialize with `Just model` right away in init function.
 -}
 initNow : LazyGlue model subModel msg subMsg -> ( subModel, Cmd subMsg ) -> ( Maybe subModel -> a, Cmd msg ) -> ( a, Cmd msg )
